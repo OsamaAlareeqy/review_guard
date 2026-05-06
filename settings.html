@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ريفيوغارد — الإعدادات</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #07080f;
+      --bg2: #0d0e1a;
+      --bg3: #12131f;
+      --surface: #16172a;
+      --surface2: #1c1e32;
+      --border: rgba(255,255,255,0.06);
+      --border2: rgba(255,255,255,0.10);
+      --border3: rgba(255,255,255,0.20);
+      --text: #eeeef5;
+      --muted: #6b6d8a;
+      --muted2: #9496b8;
+      --accent: #c84b8a;
+      --accent2: #8b5cf6;
+      --accent3: #06b6d4;
+      --red: #f43f5e;
+      --yellow: #f59e0b;
+      --green: #10b981;
+      --sidebar-w: 230px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Tajawal', 'Cairo', sans-serif;
+      background: var(--bg); color: var(--text);
+      font-size: 15px; line-height: 1.6;
+      min-height: 100vh; display: flex;
+    }
+    h1,h2,h3,h4,.logo-text { font-family: 'Cairo', sans-serif; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: var(--sidebar-w); min-height: 100vh;
+      background: var(--bg2); border-left: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; right: 0; z-index: 50;
+      transition: transform 0.3s ease;
+    }
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 1.4rem 1.25rem; border-bottom: 1px solid var(--border);
+    }
+    .logo-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; flex-shrink: 0;
+    }
+    .logo-text { font-size: 1rem; font-weight: 700; }
+    .sidebar-nav { flex: 1; padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 2px; }
+    .nav-section-label {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); padding: 0.75rem 0.65rem 0.4rem; font-family: 'Cairo', sans-serif;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.6rem 0.75rem; border-radius: 10px;
+      font-size: 0.85rem; color: var(--muted2); cursor: pointer;
+      transition: all 0.18s; font-family: 'Cairo', sans-serif; font-weight: 500;
+    }
+    .nav-item:hover { color: var(--text); background: var(--surface); }
+    .nav-item.active { color: #fff; background: rgba(200,75,138,0.12); border: 1px solid rgba(200,75,138,0.18); }
+    .nav-icon { font-size: 1rem; flex-shrink: 0; }
+    .nav-badge { margin-right: auto; background: var(--red); color: #fff; font-size: 0.62rem; font-weight: 700; padding: 0.1rem 0.45rem; border-radius: 100px; }
+    .sidebar-footer { padding: 1rem 0.75rem; border-top: 1px solid var(--border); }
+    .user-row { display: flex; align-items: center; gap: 0.7rem; padding: 0.65rem 0.75rem; border-radius: 10px; cursor: pointer; transition: background 0.18s; }
+    .user-row:hover { background: var(--surface); }
+    .user-av { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; font-family: 'Cairo', sans-serif; }
+    .user-info { flex: 1; overflow: hidden; }
+    .user-name { font-size: 0.82rem; font-weight: 700; font-family: 'Cairo', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-plan { font-size: 0.68rem; color: var(--muted); }
+
+    /* ─── MAIN ─── */
+    .main { margin-right: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+
+    .topbar {
+      height: 60px; background: rgba(7,8,15,0.85); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; position: sticky; top: 0; z-index: 40;
+    }
+    .page-title { font-size: 1rem; font-weight: 700; font-family: 'Cairo', sans-serif; }
+    .page-sub   { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+    .topbar-actions { display: flex; align-items: center; gap: 0.6rem; }
+
+    .lang-btn {
+      background: var(--surface); border: 1px solid var(--border2);
+      color: var(--muted2); padding: 0.3rem 0.75rem; border-radius: 8px;
+      font-size: 0.75rem; font-family: 'Cairo', sans-serif; cursor: pointer; transition: all 0.2s;
+    }
+    .lang-btn:hover { color: var(--text); border-color: var(--border3); }
+
+    .save-all-btn {
+      display: flex; align-items: center; gap: 0.45rem;
+      padding: 0.42rem 1rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; border: none; border-radius: 9px;
+      font-size: 0.8rem; font-weight: 700; font-family: 'Cairo', sans-serif;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .save-all-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 18px rgba(200,75,138,0.35); }
+
+    .menu-toggle {
+      display: none; width: 34px; height: 34px;
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 9px; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: pointer;
+    }
+
+    /* ─── SETTINGS LAYOUT ─── */
+    .settings-layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      flex: 1;
+    }
+
+    /* ─── SETTINGS NAV ─── */
+    .settings-nav {
+      background: var(--bg2);
+      border-left: 1px solid var(--border);
+      padding: 1.5rem 0.75rem;
+      position: sticky; top: 60px;
+      height: calc(100vh - 60px);
+      overflow-y: auto;
+    }
+
+    .s-nav-label {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); padding: 0.5rem 0.65rem 0.4rem; font-family: 'Cairo', sans-serif;
+    }
+
+    .s-nav-item {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.55rem 0.75rem; border-radius: 9px;
+      font-size: 0.82rem; color: var(--muted2); cursor: pointer;
+      transition: all 0.18s; font-family: 'Cairo', sans-serif; font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .s-nav-item:hover { color: var(--text); background: var(--surface); }
+    .s-nav-item.active { color: #e879a8; background: rgba(200,75,138,0.1); border: 1px solid rgba(200,75,138,0.18); }
+    .s-nav-icon { font-size: 0.95rem; }
+
+    /* ─── SETTINGS CONTENT ─── */
+    .settings-content {
+      padding: 2rem;
+      display: flex; flex-direction: column; gap: 1.75rem;
+      max-width: 760px;
+    }
+
+    /* ─── SECTION CARD ─── */
+    .s-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px; overflow: hidden;
+    }
+
+    .s-card-header {
+      padding: 1.1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+
+    .s-card-icon {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    .sci-pink   { background: rgba(200,75,138,0.1); border: 1px solid rgba(200,75,138,0.2); }
+    .sci-purple { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); }
+    .sci-cyan   { background: rgba(6,182,212,0.1);  border: 1px solid rgba(6,182,212,0.2); }
+    .sci-yellow { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); }
+    .sci-red    { background: rgba(244,63,94,0.1);  border: 1px solid rgba(244,63,94,0.2); }
+
+    .s-card-title-wrap { flex: 1; }
+    .s-card-title { font-size: 0.95rem; font-weight: 800; font-family: 'Cairo', sans-serif; }
+    .s-card-desc  { font-size: 0.75rem; color: var(--muted2); margin-top: 1px; }
+
+    .s-card-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+
+    /* ─── AVATAR UPLOAD ─── */
+    .avatar-row {
+      display: flex; align-items: center; gap: 1.25rem;
+    }
+
+    .avatar-big {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; font-weight: 800; font-family: 'Cairo', sans-serif;
+      flex-shrink: 0; position: relative; cursor: pointer;
+    }
+
+    .avatar-edit {
+      position: absolute; bottom: 0; left: 0;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--surface2); border: 2px solid var(--bg2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem;
+    }
+
+    .avatar-info h3 { font-size: 0.88rem; font-weight: 700; font-family: 'Cairo', sans-serif; margin-bottom: 0.2rem; }
+    .avatar-info p  { font-size: 0.75rem; color: var(--muted2); }
+
+    /* ─── FORM ROW ─── */
+    .form-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    }
+
+    .f-field { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .f-field label {
+      font-size: 0.78rem; font-weight: 600; color: var(--muted2); font-family: 'Cairo', sans-serif;
+    }
+
+    .f-field input, .f-field select, .f-field textarea {
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 10px; padding: 0.7rem 0.95rem;
+      font-size: 0.88rem; font-family: 'Tajawal', sans-serif;
+      color: var(--text); outline: none; transition: all 0.2s; width: 100%;
+      -webkit-appearance: none;
+    }
+    .f-field input::placeholder, .f-field textarea::placeholder { color: var(--muted); }
+    .f-field input:focus, .f-field select:focus, .f-field textarea:focus {
+      border-color: rgba(200,75,138,0.4);
+      box-shadow: 0 0 0 3px rgba(200,75,138,0.08);
+      background: var(--surface2);
+    }
+    .f-field textarea { resize: vertical; min-height: 80px; }
+    .f-field select option { background: var(--bg2); }
+    .f-field.full { grid-column: span 2; }
+
+    /* ─── TOGGLE ROW ─── */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .toggle-row:first-child { padding-top: 0; }
+
+    .tr-info { flex: 1; }
+    .tr-name { font-size: 0.85rem; font-weight: 700; font-family: 'Cairo', sans-serif; margin-bottom: 0.18rem; }
+    .tr-desc { font-size: 0.75rem; color: var(--muted2); }
+
+    .toggle { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0; border-radius: 100px;
+      background: var(--surface2); border: 1px solid var(--border2);
+      cursor: pointer; transition: all 0.25s;
+    }
+    .toggle input:checked + .toggle-track { background: var(--accent); border-color: var(--accent); }
+    .toggle-track::after {
+      content: ''; position: absolute; top: 2px; right: 2px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #fff; transition: transform 0.25s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .toggle input:checked + .toggle-track::after { transform: translateX(-18px); }
+
+    .pro-tag {
+      font-size: 0.68rem; font-weight: 700; font-family: 'Cairo', sans-serif;
+      background: rgba(139,92,246,0.1); color: #a78bfa;
+      border: 1px solid rgba(139,92,246,0.2);
+      padding: 0.15rem 0.55rem; border-radius: 6px; white-space: nowrap;
+    }
+
+    /* ─── PLAN CARD ─── */
+    .plan-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    }
+
+    .plan-opt {
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 14px; padding: 1.25rem;
+      cursor: pointer; transition: all 0.2s; position: relative;
+    }
+    .plan-opt:hover { border-color: var(--border3); }
+    .plan-opt.current { border-color: var(--accent); background: rgba(200,75,138,0.05); }
+    .plan-opt.upgrade { border-color: rgba(139,92,246,0.3); background: rgba(139,92,246,0.04); }
+
+    .plan-current-badge {
+      position: absolute; top: -10px; right: 1rem;
+      background: var(--accent); color: #fff;
+      font-size: 0.62rem; font-weight: 700; padding: 0.2rem 0.6rem;
+      border-radius: 100px; font-family: 'Cairo', sans-serif;
+    }
+
+    .plan-name-big { font-size: 0.82rem; font-weight: 700; font-family: 'Cairo', sans-serif; color: var(--muted2); margin-bottom: 0.4rem; }
+    .plan-price-big { font-family: 'Cairo', sans-serif; font-size: 1.8rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1; margin-bottom: 0.2rem; }
+    .plan-price-big sub { font-size: 0.8rem; font-weight: 400; color: var(--muted2); }
+    .plan-features-sm { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.85rem; }
+    .pf-sm { font-size: 0.75rem; color: var(--muted2); display: flex; align-items: center; gap: 0.4rem; }
+    .pf-check { color: var(--green); }
+    .pf-x     { color: var(--muted); }
+
+    .upgrade-plan-btn {
+      width: 100%; margin-top: 1rem; padding: 0.65rem;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #fff; border: none; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 700; font-family: 'Cairo', sans-serif;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .upgrade-plan-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(139,92,246,0.35); }
+
+    /* ─── SCAN SETTINGS ─── */
+    .scan-select-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* ─── DANGER ZONE ─── */
+    .danger-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 1rem 0; border-bottom: 1px solid var(--border);
+    }
+    .danger-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .danger-row:first-child { padding-top: 0; }
+
+    .dr-info h4 { font-size: 0.85rem; font-weight: 700; font-family: 'Cairo', sans-serif; margin-bottom: 0.2rem; }
+    .dr-info p  { font-size: 0.75rem; color: var(--muted2); }
+
+    .danger-btn {
+      padding: 0.5rem 1.1rem; border-radius: 9px;
+      font-size: 0.8rem; font-weight: 700; font-family: 'Cairo', sans-serif;
+      cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+      border: 1px solid rgba(244,63,94,0.3); background: rgba(244,63,94,0.08);
+      color: #fb7185;
+    }
+    .danger-btn:hover { background: rgba(244,63,94,0.18); }
+
+    .neutral-btn {
+      padding: 0.5rem 1.1rem; border-radius: 9px;
+      font-size: 0.8rem; font-weight: 600; font-family: 'Cairo', sans-serif;
+      cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+      border: 1px solid var(--border2); background: var(--surface2);
+      color: var(--muted2);
+    }
+    .neutral-btn:hover { color: var(--text); border-color: var(--border3); }
+
+    /* ─── TOAST ─── */
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--surface2); border: 1px solid var(--green);
+      color: var(--text); padding: 0.75rem 1.5rem;
+      border-radius: 12px; font-size: 0.85rem; font-family: 'Cairo', sans-serif;
+      display: flex; align-items: center; gap: 0.6rem;
+      transition: transform 0.35s ease; z-index: 300;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4); white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ─── SIDEBAR OVERLAY ─── */
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 45; backdrop-filter: blur(4px); }
+    .sidebar-overlay.show { display: block; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+
+    @media (max-width: 1000px) {
+      .settings-nav { display: none; }
+      .settings-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      :root { --sidebar-w: 0px; }
+      .sidebar { transform: translateX(100%); width: 230px; }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-right: 0; }
+      .menu-toggle { display: flex; }
+      .settings-content { padding: 1.25rem; }
+      .form-row { grid-template-columns: 1fr; }
+      .f-field.full { grid-column: span 1; }
+      .plan-row { grid-template-columns: 1fr; }
+      .scan-select-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+<div class="toast" id="toast">✅ <span id="toast-msg">تم الحفظ</span></div>
+
+<!-- ════════ SIDEBAR ════════ -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🛡️</div>
+    <span class="logo-text" id="logo-name">ريفيوغارد</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label" id="nav-main-label">الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'"><span class="nav-icon">🏠</span><span id="nav-dashboard">لوحة التحكم</span></div>
+    <div class="nav-item" onclick="window.location.href='businesses.html'"><span class="nav-icon">🏢</span><span id="nav-businesses">الأعمال التجارية</span></div>
+    <div class="nav-section-label" id="nav-monitor-label">المراقبة</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'"><span class="nav-icon">⭐</span><span id="nav-reviews">التقييمات</span><span class="nav-badge">14</span></div>
+    <div class="nav-item" onclick="window.location.href='alerts.html'"><span class="nav-icon">🔔</span><span id="nav-alerts">التنبيهات</span><span class="nav-badge">3</span></div>
+    <div class="nav-item"><span class="nav-icon">📊</span><span id="nav-categories">تصنيف الشكاوى</span></div>
+    <div class="nav-section-label" id="nav-account-label">الحساب</div>
+    <div class="nav-item active"><span class="nav-icon">⚙️</span><span id="nav-settings">الإعدادات</span></div>
+    <div class="nav-item" onclick="window.location.href='index.html'"><span class="nav-icon">🚪</span><span id="nav-logout">تسجيل الخروج</span></div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av" id="user-av">مح</div>
+      <div class="user-info">
+        <div class="user-name" id="user-name">محمد الأحمد</div>
+        <div class="user-plan" id="user-plan">الخطة المجانية</div>
+      </div>
+      <span style="color:var(--muted);font-size:0.8rem;">⚙️</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div>
+        <div class="page-title" id="page-title">الإعدادات</div>
+        <div class="page-sub" id="page-sub">إدارة حسابك وتفضيلاتك</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="lang-btn" onclick="switchLang()" id="langBtn">EN</button>
+      <button class="save-all-btn" onclick="saveAll()">
+        <span>💾</span><span id="save-btn-text">حفظ التغييرات</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="settings-layout">
+
+    <!-- SETTINGS NAV -->
+    <div class="settings-nav">
+      <div class="s-nav-label" id="sn-label">الأقسام</div>
+      <div class="s-nav-item active" onclick="scrollTo('profile')" id="sn-profile"><span class="s-nav-icon">👤</span><span>الملف الشخصي</span></div>
+      <div class="s-nav-item" onclick="scrollTo('notifications')" id="sn-notifications"><span class="s-nav-icon">🔔</span><span>التنبيهات</span></div>
+      <div class="s-nav-item" onclick="scrollTo('scan')" id="sn-scan"><span class="s-nav-icon">🔄</span><span>إعدادات الفحص</span></div>
+      <div class="s-nav-item" onclick="scrollTo('subscription')" id="sn-subscription"><span class="s-nav-icon">💳</span><span>الاشتراك</span></div>
+      <div class="s-nav-item" onclick="scrollTo('security')" id="sn-security"><span class="s-nav-icon">🔒</span><span>الأمان</span></div>
+      <div class="s-nav-item" onclick="scrollTo('danger')" id="sn-danger"><span class="s-nav-icon" style="color:var(--red);">⚠️</span><span style="color:var(--red);">منطقة الخطر</span></div>
+    </div>
+
+    <!-- SETTINGS CONTENT -->
+    <div class="settings-content">
+
+      <!-- ── PROFILE ── -->
+      <div class="s-card" id="profile">
+        <div class="s-card-header">
+          <div class="s-card-icon sci-pink">👤</div>
+          <div class="s-card-title-wrap">
+            <div class="s-card-title" id="sec-profile-title">الملف الشخصي</div>
+            <div class="s-card-desc" id="sec-profile-desc">اسمك وبريدك الإلكتروني وبيانات حسابك</div>
+          </div>
+        </div>
+        <div class="s-card-body">
+          <div class="avatar-row">
+            <div class="avatar-big" onclick="triggerAvatarUpload()" id="avatar-letters">
+              مح
+              <div class="avatar-edit">✏️</div>
+            </div>
+            <div class="avatar-info">
+              <h3 id="avatar-name">محمد الأحمد</h3>
+              <p id="avatar-hint">انقر على الصورة لتغييرها · PNG أو JPG حتى 2MB</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="f-field">
+              <label id="lbl-fname">الاسم الأول</label>
+              <input type="text" id="inp-fname" value="محمد" />
+            </div>
+            <div class="f-field">
+              <label id="lbl-lname">اسم العائلة</label>
+              <input type="text" id="inp-lname" value="الأحمد" />
+            </div>
+            <div class="f-field full">
+              <label id="lbl-email">البريد الإلكتروني</label>
+              <input type="email" id="inp-email" value="mohammed@business.com" dir="ltr" />
+            </div>
+            <div class="f-field">
+              <label id="lbl-phone">رقم الجوال</label>
+              <input type="tel" id="inp-phone" value="+966 50 000 0000" dir="ltr" />
+            </div>
+            <div class="f-field">
+              <label id="lbl-timezone">المنطقة الزمنية</label>
+              <select id="inp-timezone">
+                <option value="AST" selected>توقيت الرياض (AST +3)</option>
+                <option value="UTC">UTC +0</option>
+                <option value="GST">توقيت الخليج (GST +4)</option>
+                <option value="EET">توقيت القاهرة (EET +2)</option>
+              </select>
+            </div>
+            <div class="f-field full">
+              <label id="lbl-lang-pref">لغة الواجهة</label>
+              <select id="inp-lang">
+                <option value="ar" selected>العربية</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── NOTIFICATIONS ── -->
+      <div class="s-card" id="notifications">
+        <div class="s-card-header">
+          <div class="s-card-icon sci-purple">🔔</div>
+          <div class="s-card-title-wrap">
+            <div class="s-card-title" id="sec-notif-title">إعدادات التنبيهات</div>
+            <div class="s-card-desc" id="sec-notif-desc">تحكم في متى وكيف تتلقى إشعاراتك</div>
+          </div>
+        </div>
+        <div class="s-card-body">
+
+          <div class="toggle-row">
+            <div class="tr-info">
+              <div class="tr-name" id="tn1-name">تنبيه التقييمات الحرجة (1-2 نجوم)</div>
+              <div class="tr-desc" id="tn1-desc">إرسال بريد إلكتروني فور رصد تقييم منخفض</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="tr-info">
+              <div class="tr-name" id="tn2-name">الملخص اليومي</div>
+              <div class="tr-desc" id="tn2-desc">بريد إلكتروني يومي بكل التقييمات الجديدة في الصباح</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="tr-info">
+              <div class="tr-name" id="tn3-name">تنبيهات فورية <span class="pro-tag">Pro</span></div>
+              <div class="tr-desc" id="tn3-desc">إشعار في الثانية التي ينشر فيها التقييم</div>
+            </div>
+            <label class="toggle"><input type="checkbox" disabled><span class="toggle-track"></span></label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="tr-info">
+              <div class="tr-name" id="tn4-name">تنبيه ارتفاع الشكاوى <span class="pro-tag">Pro</span></div>
+              <div class="tr-desc" id="tn4-desc">عند تكرار نفس نوع الشكوى أكثر من 3 مرات في يوم واحد</div>
+            </div>
+            <label class="toggle"><input type="checkbox" disabled><span class="toggle-track"></span></label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="tr-info">
+              <div class="tr-name" id="tn5-name">تقرير أسبوعي</div>
+              <div class="tr-desc" id="tn5-desc">ملخص أسبوعي شامل بكل الإحصاءات</div>
+            </div>
+            <label class="toggle"><input type="checkbox"><span class="toggle-track"></span></label>
+          </div>
+
+          <div class="form-row" style="margin-top:0.5rem;">
+            <div class="f-field">
+              <label id="lbl-digest-time">وقت إرسال الملخص اليومي</label>
+              <input type="time" id="digest-time" value="08:00" dir="ltr" />
+            </div>
+            <div class="f-field">
+              <label id="lbl-notif-email">بريد التنبيهات</label>
+              <input type="email" id="notif-email" value="mohammed@business.com" dir="ltr" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SCAN SETTINGS ── -->
+      <div class="s-card" id="scan">
+        <div class="s-card-header">
+          <div class="s-card-icon sci-cyan">🔄</div>
+          <div class="s-card-title-wrap">
+            <div class="s-card-title" id="sec-scan-title">إعدادات الفحص التلقائي</div>
+            <div class="s-card-desc" id="sec-scan-desc">تحكم في كيفية ومتى يفحص النظام تقييماتك</div>
+          </div>
+        </div>
+        <div class="s-card-body">
+          <div class="scan-select-row">
+            <div class="f-field">
+              <label id="lbl-scan-freq">معدل الفحص</label>
+              <select id="scan-freq">
+                <option value="2" id="sf-2h">كل ساعتين</option>
+                <option value="4" selected id="sf-4h">كل 4 ساعات (افتراضي)</option>
+                <option value="6" id="sf-6h">كل 6 ساعات</option>
+                <option value="12" id="sf-12h">كل 12 ساعة</option>
+                <option value="24" id="sf-24h">مرة يومياً</option>
+              </select>
+            </div>
+            <div class="f-field">
+              <label id="lbl-min-stars">حد النجوم للتنبيه</label>
+              <select id="min-stars">
+                <option value="1" id="ms-1">1 نجمة فقط</option>
+                <option value="2" selected id="ms-2">1-2 نجوم (افتراضي)</option>
+                <option value="3" id="ms-3">1-3 نجوم</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <div class="tr-info">
+              <div class="tr-name" id="ts1-name">كشف الكلمات السلبية</div>
+              <div class="tr-desc" id="ts1-desc">رصد التقييمات التي تحتوي على كلمات سلبية حتى لو كان التقييم 3 نجوم</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="tr-info">
+              <div class="tr-name" id="ts2-name">تجنب الفحص المكرر</div>
+              <div class="tr-desc" id="ts2-desc">تخطي التقييمات التي تم رصدها من قبل تلقائياً</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="tr-info">
+              <div class="tr-name" id="ts3-name">تحليل الذكاء الاصطناعي <span class="pro-tag">Pro</span></div>
+              <div class="tr-desc" id="ts3-desc">تحليل تلقائي لكل تقييم وتصنيف الشكوى بالذكاء الاصطناعي</div>
+            </div>
+            <label class="toggle"><input type="checkbox" disabled><span class="toggle-track"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SUBSCRIPTION ── -->
+      <div class="s-card" id="subscription">
+        <div class="s-card-header">
+          <div class="s-card-icon sci-yellow">💳</div>
+          <div class="s-card-title-wrap">
+            <div class="s-card-title" id="sec-sub-title">الاشتراك والفوترة</div>
+            <div class="s-card-desc" id="sec-sub-desc">خطتك الحالية وخيارات الترقية</div>
+          </div>
+        </div>
+        <div class="s-card-body">
+
+          <!-- CURRENT PLAN BADGE -->
+          <div style="background:rgba(200,75,138,0.06);border:1px solid rgba(200,75,138,0.15);border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:0.72rem;color:var(--muted2);font-family:'Cairo',sans-serif;font-weight:600;margin-bottom:0.3rem;" id="curr-plan-label">خطتك الحالية</div>
+              <div style="font-family:'Cairo',sans-serif;font-size:1.2rem;font-weight:900;" id="curr-plan-name">المجانية</div>
+              <div style="font-size:0.75rem;color:var(--muted2);margin-top:0.2rem;" id="curr-plan-desc">نشاط تجاري واحد · ملخص يومي · بدون تنبيهات فورية</div>
+            </div>
+            <div style="background:rgba(200,75,138,0.1);border:1px solid rgba(200,75,138,0.2);color:#e879a8;padding:0.35rem 0.9rem;border-radius:8px;font-size:0.75rem;font-weight:700;font-family:'Cairo',sans-serif;" id="curr-plan-badge">مجاني</div>
+          </div>
+
+          <div class="plan-row">
+            <div class="plan-opt current">
+              <div class="plan-current-badge" id="plan-cur-badge">خطتك الحالية</div>
+              <div class="plan-name-big" id="p1-name">المجانية</div>
+              <div class="plan-price-big">$0 <sub id="p1-per">/ شهر</sub></div>
+              <div class="plan-features-sm">
+                <div class="pf-sm"><span class="pf-check">✓</span> <span id="pf1-1">نشاط تجاري واحد</span></div>
+                <div class="pf-sm"><span class="pf-check">✓</span> <span id="pf1-2">ملخص يومي</span></div>
+                <div class="pf-sm"><span class="pf-x">–</span> <span id="pf1-3" style="color:var(--muted);">تنبيهات فورية</span></div>
+                <div class="pf-sm"><span class="pf-x">–</span> <span id="pf1-4" style="color:var(--muted);">ذكاء اصطناعي</span></div>
+              </div>
+            </div>
+            <div class="plan-opt upgrade">
+              <div class="plan-name-big" id="p2-name">Pro</div>
+              <div class="plan-price-big">$19 <sub id="p2-per">/ شهر</sub></div>
+              <div class="plan-features-sm">
+                <div class="pf-sm"><span class="pf-check">✓</span> <span id="pf2-1">حتى 10 أعمال تجارية</span></div>
+                <div class="pf-sm"><span class="pf-check">✓</span> <span id="pf2-2">تنبيهات فورية</span></div>
+                <div class="pf-sm"><span class="pf-check">✓</span> <span id="pf2-3">تحليل الذكاء الاصطناعي</span></div>
+                <div class="pf-sm"><span class="pf-check">✓</span> <span id="pf2-4">دعم أولوية</span></div>
+              </div>
+              <button class="upgrade-plan-btn" id="upgrade-btn">ترقّ الآن — تجربة مجانية 7 أيام</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SECURITY ── -->
+      <div class="s-card" id="security">
+        <div class="s-card-header">
+          <div class="s-card-icon sci-cyan">🔒</div>
+          <div class="s-card-title-wrap">
+            <div class="s-card-title" id="sec-sec-title">الأمان وكلمة المرور</div>
+            <div class="s-card-desc" id="sec-sec-desc">حافظ على أمان حسابك</div>
+          </div>
+        </div>
+        <div class="s-card-body">
+          <div class="form-row">
+            <div class="f-field full">
+              <label id="lbl-curr-pass">كلمة المرور الحالية</label>
+              <input type="password" id="curr-pass" placeholder="••••••••" />
+            </div>
+            <div class="f-field">
+              <label id="lbl-new-pass">كلمة المرور الجديدة</label>
+              <input type="password" id="new-pass" placeholder="••••••••" />
+            </div>
+            <div class="f-field">
+              <label id="lbl-confirm-pass">تأكيد كلمة المرور</label>
+              <input type="password" id="confirm-pass" placeholder="••••••••" />
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <div class="tr-info">
+              <div class="tr-name" id="ts4-name">المصادقة الثنائية (2FA)</div>
+              <div class="tr-desc" id="ts4-desc">طبقة أمان إضافية لحسابك عبر رمز SMS</div>
+            </div>
+            <label class="toggle"><input type="checkbox"><span class="toggle-track"></span></label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="tr-info">
+              <div class="tr-name" id="ts5-name">تنبيهات تسجيل الدخول</div>
+              <div class="tr-desc" id="ts5-desc">إشعار بالبريد الإلكتروني عند كل تسجيل دخول جديد</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+          </div>
+
+          <div style="display:flex;gap:0.75rem;margin-top:0.25rem;">
+            <button class="neutral-btn" id="change-pass-btn" onclick="saveAll()">حفظ كلمة المرور</button>
+            <button class="neutral-btn" id="sessions-btn">عرض الجلسات النشطة</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── DANGER ZONE ── -->
+      <div class="s-card" id="danger" style="border-color:rgba(244,63,94,0.2);">
+        <div class="s-card-header" style="border-bottom-color:rgba(244,63,94,0.12);">
+          <div class="s-card-icon sci-red">⚠️</div>
+          <div class="s-card-title-wrap">
+            <div class="s-card-title" style="color:var(--red);" id="sec-danger-title">منطقة الخطر</div>
+            <div class="s-card-desc" id="sec-danger-desc">إجراءات لا يمكن التراجع عنها — تعامل بحذر</div>
+          </div>
+        </div>
+        <div class="s-card-body">
+
+          <div class="danger-row">
+            <div class="dr-info">
+              <h4 id="d1-title">مسح جميع التقييمات المحفوظة</h4>
+              <p id="d1-desc">حذف كل بيانات التقييمات السلبية المخزنة. لا يمكن استرجاعها.</p>
+            </div>
+            <button class="danger-btn" id="d1-btn" onclick="confirmDanger('clear_reviews')">مسح البيانات</button>
+          </div>
+
+          <div class="danger-row">
+            <div class="dr-info">
+              <h4 id="d2-title">إلغاء الاشتراك</h4>
+              <p id="d2-desc">إلغاء خطة Pro والرجوع إلى الخطة المجانية في نهاية الدورة الحالية.</p>
+            </div>
+            <button class="danger-btn" id="d2-btn" onclick="confirmDanger('cancel_sub')">إلغاء الاشتراك</button>
+          </div>
+
+          <div class="danger-row">
+            <div class="dr-info">
+              <h4 id="d3-title" style="color:var(--red);">حذف الحساب نهائياً</h4>
+              <p id="d3-desc">حذف حسابك وجميع بياناتك نهائياً. هذا الإجراء لا يمكن التراجع عنه إطلاقاً.</p>
+            </div>
+            <button class="danger-btn" id="d3-btn" style="background:rgba(244,63,94,0.15);" onclick="confirmDanger('delete_account')">حذف الحساب</button>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- end settings-content -->
+  </div><!-- end settings-layout -->
+</div><!-- end main -->
+
+<script>
+var isAr = true;
+
+/* ── LANG TRANSLATIONS ── */
+var T = {
+  'logo-name':          {ar:'ريفيوغارد', en:'ReviewGuard'},
+  'nav-main-label':     {ar:'الرئيسية', en:'Main'},
+  'nav-dashboard':      {ar:'لوحة التحكم', en:'Dashboard'},
+  'nav-businesses':     {ar:'الأعمال التجارية', en:'Businesses'},
+  'nav-monitor-label':  {ar:'المراقبة', en:'Monitoring'},
+  'nav-reviews':        {ar:'التقييمات', en:'Reviews'},
+  'nav-alerts':         {ar:'التنبيهات', en:'Alerts'},
+  'nav-categories':     {ar:'تصنيف الشكاوى', en:'Categories'},
+  'nav-account-label':  {ar:'الحساب', en:'Account'},
+  'nav-settings':       {ar:'الإعدادات', en:'Settings'},
+  'nav-logout':         {ar:'تسجيل الخروج', en:'Logout'},
+  'user-av':            {ar:'مح', en:'MA'},
+  'user-name':          {ar:'محمد الأحمد', en:'Mohammed Al-Ahmad'},
+  'user-plan':          {ar:'الخطة المجانية', en:'Free Plan'},
+  'page-title':         {ar:'الإعدادات', en:'Settings'},
+  'page-sub':           {ar:'إدارة حسابك وتفضيلاتك', en:'Manage your account and preferences'},
+  'save-btn-text':      {ar:'حفظ التغييرات', en:'Save changes'},
+  'sn-label':           {ar:'الأقسام', en:'Sections'},
+  'sn-profile':         {ar:'الملف الشخصي', en:'Profile'},
+  'sn-notifications':   {ar:'التنبيهات', en:'Notifications'},
+  'sn-scan':            {ar:'إعدادات الفحص', en:'Scan settings'},
+  'sn-subscription':    {ar:'الاشتراك', en:'Subscription'},
+  'sn-security':        {ar:'الأمان', en:'Security'},
+  'sn-danger':          {ar:'منطقة الخطر', en:'Danger zone'},
+  'sec-profile-title':  {ar:'الملف الشخصي', en:'Profile'},
+  'sec-profile-desc':   {ar:'اسمك وبريدك الإلكتروني وبيانات حسابك', en:'Your name, email, and account details'},
+  'avatar-name':        {ar:'محمد الأحمد', en:'Mohammed Al-Ahmad'},
+  'avatar-hint':        {ar:'انقر على الصورة لتغييرها · PNG أو JPG حتى 2MB', en:'Click the avatar to change it · PNG or JPG up to 2MB'},
+  'avatar-letters':     {ar:'مح', en:'MA'},
+  'lbl-fname':          {ar:'الاسم الأول', en:'First name'},
+  'lbl-lname':          {ar:'اسم العائلة', en:'Last name'},
+  'lbl-email':          {ar:'البريد الإلكتروني', en:'Email address'},
+  'lbl-phone':          {ar:'رقم الجوال', en:'Phone number'},
+  'lbl-timezone':       {ar:'المنطقة الزمنية', en:'Timezone'},
+  'lbl-lang-pref':      {ar:'لغة الواجهة', en:'Interface language'},
+  'sec-notif-title':    {ar:'إعدادات التنبيهات', en:'Notification settings'},
+  'sec-notif-desc':     {ar:'تحكم في متى وكيف تتلقى إشعاراتك', en:'Control when and how you receive notifications'},
+  'tn1-name':           {ar:'تنبيه التقييمات الحرجة (1-2 نجوم)', en:'Critical review alerts (1-2 stars)'},
+  'tn1-desc':           {ar:'إرسال بريد إلكتروني فور رصد تقييم منخفض', en:'Email sent immediately when a low rating is detected'},
+  'tn2-name':           {ar:'الملخص اليومي', en:'Daily digest'},
+  'tn2-desc':           {ar:'بريد إلكتروني يومي بكل التقييمات الجديدة في الصباح', en:'Daily morning email with all new reviews'},
+  'tn3-name':           {ar:'تنبيهات فورية', en:'Instant alerts'},
+  'tn3-desc':           {ar:'إشعار في الثانية التي ينشر فيها التقييم', en:'Notification the second a review is posted'},
+  'tn4-name':           {ar:'تنبيه ارتفاع الشكاوى', en:'Complaint spike alert'},
+  'tn4-desc':           {ar:'عند تكرار نفس نوع الشكوى أكثر من 3 مرات في يوم واحد', en:'When the same complaint type repeats 3+ times in one day'},
+  'tn5-name':           {ar:'تقرير أسبوعي', en:'Weekly report'},
+  'tn5-desc':           {ar:'ملخص أسبوعي شامل بكل الإحصاءات', en:'Comprehensive weekly summary with all stats'},
+  'lbl-digest-time':    {ar:'وقت إرسال الملخص اليومي', en:'Daily digest send time'},
+  'lbl-notif-email':    {ar:'بريد التنبيهات', en:'Notification email'},
+  'sec-scan-title':     {ar:'إعدادات الفحص التلقائي', en:'Auto-scan settings'},
+  'sec-scan-desc':      {ar:'تحكم في كيفية ومتى يفحص النظام تقييماتك', en:'Control how and when the system scans your reviews'},
+  'lbl-scan-freq':      {ar:'معدل الفحص', en:'Scan frequency'},
+  'sf-2h':              {ar:'كل ساعتين', en:'Every 2 hours'},
+  'sf-4h':              {ar:'كل 4 ساعات (افتراضي)', en:'Every 4 hours (default)'},
+  'sf-6h':              {ar:'كل 6 ساعات', en:'Every 6 hours'},
+  'sf-12h':             {ar:'كل 12 ساعة', en:'Every 12 hours'},
+  'sf-24h':             {ar:'مرة يومياً', en:'Once daily'},
+  'lbl-min-stars':      {ar:'حد النجوم للتنبيه', en:'Minimum stars to alert'},
+  'ms-1':               {ar:'1 نجمة فقط', en:'1 star only'},
+  'ms-2':               {ar:'1-2 نجوم (افتراضي)', en:'1-2 stars (default)'},
+  'ms-3':               {ar:'1-3 نجوم', en:'1-3 stars'},
+  'ts1-name':           {ar:'كشف الكلمات السلبية', en:'Negative keyword detection'},
+  'ts1-desc':           {ar:'رصد التقييمات التي تحتوي على كلمات سلبية حتى لو كان التقييم 3 نجوم', en:'Detect reviews with negative keywords even if rated 3 stars'},
+  'ts2-name':           {ar:'تجنب الفحص المكرر', en:'Skip duplicate reviews'},
+  'ts2-desc':           {ar:'تخطي التقييمات التي تم رصدها من قبل تلقائياً', en:'Automatically skip previously detected reviews'},
+  'ts3-name':           {ar:'تحليل الذكاء الاصطناعي', en:'AI analysis'},
+  'ts3-desc':           {ar:'تحليل تلقائي لكل تقييم وتصنيف الشكوى بالذكاء الاصطناعي', en:'Automatic analysis and categorization of every review using AI'},
+  'sec-sub-title':      {ar:'الاشتراك والفوترة', en:'Subscription & billing'},
+  'sec-sub-desc':       {ar:'خطتك الحالية وخيارات الترقية', en:'Your current plan and upgrade options'},
+  'curr-plan-label':    {ar:'خطتك الحالية', en:'Your current plan'},
+  'curr-plan-name':     {ar:'المجانية', en:'Free'},
+  'curr-plan-desc':     {ar:'نشاط تجاري واحد · ملخص يومي · بدون تنبيهات فورية', en:'1 business · Daily digest · No instant alerts'},
+  'curr-plan-badge':    {ar:'مجاني', en:'Free'},
+  'plan-cur-badge':     {ar:'خطتك الحالية', en:'Current plan'},
+  'p1-name':            {ar:'المجانية', en:'Free'},
+  'p1-per':             {ar:'/ شهر', en:'/ mo'},
+  'pf1-1':              {ar:'نشاط تجاري واحد', en:'1 business'},
+  'pf1-2':              {ar:'ملخص يومي', en:'Daily digest'},
+  'pf1-3':              {ar:'تنبيهات فورية', en:'Instant alerts'},
+  'pf1-4':              {ar:'ذكاء اصطناعي', en:'AI analysis'},
+  'p2-name':            {ar:'Pro', en:'Pro'},
+  'p2-per':             {ar:'/ شهر', en:'/ mo'},
+  'pf2-1':              {ar:'حتى 10 أعمال تجارية', en:'Up to 10 businesses'},
+  'pf2-2':              {ar:'تنبيهات فورية', en:'Instant alerts'},
+  'pf2-3':              {ar:'تحليل الذكاء الاصطناعي', en:'AI analysis'},
+  'pf2-4':              {ar:'دعم أولوية', en:'Priority support'},
+  'upgrade-btn':        {ar:'ترقّ الآن — تجربة مجانية 7 أيام', en:'Upgrade now — 7-day free trial'},
+  'sec-sec-title':      {ar:'الأمان وكلمة المرور', en:'Security & password'},
+  'sec-sec-desc':       {ar:'حافظ على أمان حسابك', en:'Keep your account secure'},
+  'lbl-curr-pass':      {ar:'كلمة المرور الحالية', en:'Current password'},
+  'lbl-new-pass':       {ar:'كلمة المرور الجديدة', en:'New password'},
+  'lbl-confirm-pass':   {ar:'تأكيد كلمة المرور', en:'Confirm password'},
+  'ts4-name':           {ar:'المصادقة الثنائية (2FA)', en:'Two-factor authentication (2FA)'},
+  'ts4-desc':           {ar:'طبقة أمان إضافية لحسابك عبر رمز SMS', en:'Extra security layer via SMS code'},
+  'ts5-name':           {ar:'تنبيهات تسجيل الدخول', en:'Login alerts'},
+  'ts5-desc':           {ar:'إشعار بالبريد الإلكتروني عند كل تسجيل دخول جديد', en:'Email notification on every new login'},
+  'change-pass-btn':    {ar:'حفظ كلمة المرور', en:'Save password'},
+  'sessions-btn':       {ar:'عرض الجلسات النشطة', en:'View active sessions'},
+  'sec-danger-title':   {ar:'منطقة الخطر', en:'Danger zone'},
+  'sec-danger-desc':    {ar:'إجراءات لا يمكن التراجع عنها — تعامل بحذر', en:'Irreversible actions — handle with care'},
+  'd1-title':           {ar:'مسح جميع التقييمات المحفوظة', en:'Clear all saved reviews'},
+  'd1-desc':            {ar:'حذف كل بيانات التقييمات السلبية المخزنة. لا يمكن استرجاعها.', en:'Delete all stored negative review data. Cannot be recovered.'},
+  'd1-btn':             {ar:'مسح البيانات', en:'Clear data'},
+  'd2-title':           {ar:'إلغاء الاشتراك', en:'Cancel subscription'},
+  'd2-desc':            {ar:'إلغاء خطة Pro والرجوع إلى الخطة المجانية في نهاية الدورة الحالية.', en:'Cancel Pro plan and revert to free at end of current cycle.'},
+  'd2-btn':             {ar:'إلغاء الاشتراك', en:'Cancel subscription'},
+  'd3-title':           {ar:'حذف الحساب نهائياً', en:'Delete account permanently'},
+  'd3-desc':            {ar:'حذف حسابك وجميع بياناتك نهائياً. هذا الإجراء لا يمكن التراجع عنه إطلاقاً.', en:'Delete your account and all data permanently. This cannot be undone.'},
+  'd3-btn':             {ar:'حذف الحساب', en:'Delete account'},
+  'toast-msg':          {ar:'تم حفظ التغييرات بنجاح ✓', en:'Changes saved successfully ✓'},
+};
+
+function switchLang() {
+  isAr = !isAr;
+  var l = isAr ? 'ar' : 'en';
+  document.documentElement.lang = l;
+  document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+  document.getElementById('langBtn').textContent = isAr ? 'EN' : 'عربي';
+
+  Object.keys(T).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el || !T[id] || T[id][l] === undefined) return;
+    if (el.tagName === 'INPUT' && el.type !== 'checkbox' && el.type !== 'time' && el.type !== 'password') {
+      el.placeholder = T[id][l];
+    } else if (el.tagName !== 'INPUT' && el.tagName !== 'SELECT') {
+      el.innerHTML = T[id][l];
+    }
+  });
+
+  // update inp-fname placeholder
+  document.getElementById('inp-fname').value = isAr ? 'محمد' : 'Mohammed';
+  document.getElementById('inp-lname').value = isAr ? 'الأحمد' : 'Al-Ahmad';
+}
+
+/* ── SIDEBAR ── */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+/* ── SCROLL TO SECTION ── */
+function scrollTo(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.s-nav-item').forEach(function(el){ el.classList.remove('active'); });
+  var map = { profile:'sn-profile', notifications:'sn-notifications', scan:'sn-scan', subscription:'sn-subscription', security:'sn-security', danger:'sn-danger' };
+  var navEl = document.getElementById(map[id]);
+  if (navEl) navEl.classList.add('active');
+}
+
+/* ── SAVE ── */
+function saveAll() {
+  var t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = isAr ? 'تم حفظ التغييرات بنجاح ✓' : 'Changes saved successfully ✓';
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3200);
+}
+
+/* ── AVATAR UPLOAD ── */
+function triggerAvatarUpload() {
+  showToast(isAr ? 'رفع الصورة قيد التطوير' : 'Avatar upload coming soon');
+}
+
+/* ── DANGER CONFIRM ── */
+function confirmDanger(action) {
+  var msgs = {
+    clear_reviews: isAr ? 'هل أنت متأكد من مسح جميع بيانات التقييمات؟' : 'Are you sure you want to clear all review data?',
+    cancel_sub:    isAr ? 'هل أنت متأكد من إلغاء اشتراكك؟' : 'Are you sure you want to cancel your subscription?',
+    delete_account:isAr ? 'هل أنت متأكد تماماً من حذف حسابك نهائياً؟ لا يمكن التراجع!' : 'Are you absolutely sure? This cannot be undone!'
+  };
+  if (confirm(msgs[action])) {
+    showToast(isAr ? 'تم تنفيذ الإجراء' : 'Action executed');
+  }
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3200);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ريفيوغارد — لوحة التحكم</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #07080f;
+      --bg2: #0d0e1a;
+      --bg3: #12131f;
+      --surface: #16172a;
+      --surface2: #1c1e32;
+      --border: rgba(255,255,255,0.06);
+      --border2: rgba(255,255,255,0.10);
+      --border3: rgba(255,255,255,0.18);
+      --text: #eeeef5;
+      --muted: #6b6d8a;
+      --muted2: #9496b8;
+      --accent: #c84b8a;
+      --accent2: #8b5cf6;
+      --accent3: #06b6d4;
+      --red: #f43f5e;
+      --yellow: #f59e0b;
+      --green: #10b981;
+      --sidebar-w: 230px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Tajawal', 'Cairo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    h1,h2,h3,h4,.logo-text,.kpi-val,.plan-price { font-family: 'Cairo', sans-serif; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ═══════════════════════════════
+       SIDEBAR
+    ═══════════════════════════════ */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--bg2);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; right: 0;
+      z-index: 50;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 1.4rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; flex-shrink: 0;
+    }
+
+    .logo-text { font-size: 1rem; font-weight: 700; }
+
+    .sidebar-nav {
+      flex: 1; padding: 1rem 0.75rem;
+      display: flex; flex-direction: column; gap: 2px;
+    }
+
+    .nav-section-label {
+      font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); padding: 0.75rem 0.65rem 0.4rem;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      color: var(--muted2);
+      cursor: pointer;
+      transition: all 0.18s;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-item:hover { color: var(--text); background: var(--surface); }
+
+    .nav-item.active {
+      color: #fff;
+      background: rgba(200,75,138,0.12);
+      border: 1px solid rgba(200,75,138,0.18);
+    }
+
+    .nav-icon { font-size: 1rem; flex-shrink: 0; }
+
+    .nav-badge {
+      margin-right: auto;
+      background: var(--red);
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 0.1rem 0.45rem;
+      border-radius: 100px;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .user-row {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .user-row:hover { background: var(--surface); }
+
+    .user-av {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .user-info { flex: 1; overflow: hidden; }
+    .user-name { font-size: 0.82rem; font-weight: 700; font-family: 'Cairo', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-plan { font-size: 0.68rem; color: var(--muted); }
+
+    /* ═══════════════════════════════
+       MAIN CONTENT
+    ═══════════════════════════════ */
+    .main {
+      margin-right: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      height: 60px;
+      background: rgba(7,8,15,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem;
+      position: sticky; top: 0; z-index: 40;
+    }
+
+    .topbar-right { display: flex; align-items: center; gap: 1rem; }
+
+    .page-title { font-size: 1rem; font-weight: 700; font-family: 'Cairo', sans-serif; }
+    .page-sub { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+
+    .topbar-actions { display: flex; align-items: center; gap: 0.6rem; }
+
+    .lang-btn {
+      background: var(--surface); border: 1px solid var(--border2);
+      color: var(--muted2); padding: 0.3rem 0.75rem;
+      border-radius: 8px; font-size: 0.75rem;
+      font-family: 'Cairo', sans-serif; cursor: pointer; transition: all 0.2s;
+    }
+    .lang-btn:hover { color: var(--text); border-color: var(--border3); }
+
+    .icon-btn {
+      width: 34px; height: 34px;
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 9px; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: pointer; transition: all 0.2s; position: relative;
+    }
+    .icon-btn:hover { border-color: var(--border3); background: var(--surface2); }
+
+    .notif-dot {
+      position: absolute; top: 5px; right: 5px;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--red); border: 1.5px solid var(--bg2);
+    }
+
+    .add-btn {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 1rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; border: none; border-radius: 9px;
+      font-size: 0.82rem; font-weight: 700;
+      font-family: 'Cairo', sans-serif; cursor: pointer; transition: all 0.2s;
+    }
+    .add-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(200,75,138,0.35); }
+
+    /* ── PAGE CONTENT ── */
+    .page-content { padding: 2rem; flex: 1; }
+
+    /* ── WELCOME BANNER ── */
+    .welcome-banner {
+      background: linear-gradient(135deg, rgba(200,75,138,0.08) 0%, rgba(139,92,246,0.06) 100%);
+      border: 1px solid rgba(200,75,138,0.15);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 2rem;
+      position: relative; overflow: hidden;
+    }
+
+    .welcome-banner::before {
+      content: '';
+      position: absolute; top: -40px; left: -40px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(200,75,138,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .welcome-text h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.3rem; letter-spacing: -0.015em; }
+    .welcome-text p  { font-size: 0.85rem; color: var(--muted2); }
+
+    .welcome-status {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 100px; font-size: 0.78rem; font-weight: 700;
+      font-family: 'Cairo', sans-serif; flex-shrink: 0;
+    }
+    .ws-warning { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+    .ws-critical { background: rgba(244,63,94,0.12); color: #fb7185; border: 1px solid rgba(244,63,94,0.2); }
+    .ws-stable   { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+    .ws-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: blink 1.8s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── KPI GRID ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      position: relative; overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .kpi-card:hover { border-color: var(--border2); }
+
+    .kpi-card::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      border-radius: 14px 14px 0 0;
+    }
+    .kpi-card.red::after   { background: linear-gradient(to left, transparent, var(--red)); }
+    .kpi-card.yellow::after{ background: linear-gradient(to left, transparent, var(--yellow)); }
+    .kpi-card.purple::after{ background: linear-gradient(to left, transparent, var(--accent2)); }
+    .kpi-card.cyan::after  { background: linear-gradient(to left, transparent, var(--accent3)); }
+
+    .kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .kpi-label { font-size: 0.75rem; color: var(--muted2); font-family: 'Cairo', sans-serif; font-weight: 600; }
+    .kpi-icon { font-size: 1.1rem; }
+
+    .kpi-val { font-size: 2rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1; margin-bottom: 0.4rem; }
+
+    .kpi-delta {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.72rem; font-family: 'Cairo', sans-serif; font-weight: 600;
+    }
+    .kpi-delta.up   { color: var(--red); }
+    .kpi-delta.down { color: var(--green); }
+    .kpi-delta.neutral { color: var(--muted2); }
+
+    /* ── TWO COL LAYOUT ── */
+    .two-col { display: grid; grid-template-columns: 1fr 340px; gap: 1.5rem; margin-bottom: 2rem; }
+
+    /* ── SECTION CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1.1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .card-title {
+      font-size: 0.9rem; font-weight: 700;
+      font-family: 'Cairo', sans-serif;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    .card-count {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      font-size: 0.68rem; font-weight: 700;
+      padding: 0.15rem 0.5rem; border-radius: 6px;
+      font-family: 'Cairo', sans-serif; color: var(--muted2);
+    }
+
+    .card-action {
+      font-size: 0.78rem; color: var(--accent);
+      font-family: 'Cairo', sans-serif; font-weight: 600;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .card-action:hover { opacity: 0.75; }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 0.3rem 0.8rem;
+      border-radius: 8px; font-size: 0.75rem;
+      font-family: 'Cairo', sans-serif; font-weight: 600;
+      cursor: pointer; transition: all 0.18s;
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--muted2);
+    }
+    .filter-btn:hover { color: var(--text); border-color: var(--border3); }
+    .filter-btn.active { background: rgba(200,75,138,0.1); color: #e879a8; border-color: rgba(200,75,138,0.25); }
+
+    .filter-sep { width: 1px; height: 18px; background: var(--border2); }
+
+    .search-input {
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 8px; padding: 0.3rem 0.75rem;
+      font-size: 0.78rem; font-family: 'Tajawal', sans-serif;
+      color: var(--text); outline: none; width: 160px;
+      transition: all 0.2s;
+    }
+    .search-input::placeholder { color: var(--muted); }
+    .search-input:focus { border-color: rgba(200,75,138,0.4); width: 200px; }
+
+    /* ── REVIEW LIST ── */
+    .review-list { display: flex; flex-direction: column; }
+
+    .review-item {
+      padding: 1.1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; gap: 1rem;
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+    .review-item:last-child { border-bottom: none; }
+    .review-item:hover { background: rgba(255,255,255,0.02); }
+
+    .review-item.unread { background: rgba(200,75,138,0.03); }
+
+    .review-left { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; min-width: 54px; }
+
+    .r-stars { font-size: 0.72rem; letter-spacing: 1px; }
+
+    .r-badge {
+      padding: 0.15rem 0.5rem; border-radius: 5px;
+      font-size: 0.62rem; font-weight: 700;
+      font-family: 'Cairo', sans-serif; white-space: nowrap;
+    }
+    .rb-critical { background: rgba(244,63,94,0.15); color: #fb7185; border: 1px solid rgba(244,63,94,0.2); }
+    .rb-urgent   { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+    .rb-moderate { background: rgba(139,92,246,0.12); color: #a78bfa; border: 1px solid rgba(139,92,246,0.2); }
+
+    .review-body { flex: 1; }
+
+    .review-meta-top {
+      display: flex; align-items: center; gap: 0.6rem;
+      margin-bottom: 0.35rem; flex-wrap: wrap;
+    }
+
+    .r-author { font-size: 0.82rem; font-weight: 700; font-family: 'Cairo', sans-serif; }
+    .r-date   { font-size: 0.72rem; color: var(--muted); }
+    .r-biz    { font-size: 0.72rem; color: var(--accent3); background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.15); padding: 0.1rem 0.45rem; border-radius: 5px; font-family: 'Cairo', sans-serif; font-weight: 600; }
+
+    .r-text { font-size: 0.83rem; color: var(--muted2); line-height: 1.6; margin-bottom: 0.5rem; }
+
+    .r-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .r-tag {
+      padding: 0.15rem 0.5rem; border-radius: 5px;
+      font-size: 0.65rem; font-weight: 600;
+      font-family: 'Cairo', sans-serif;
+      background: var(--surface2); color: var(--muted2);
+      border: 1px solid var(--border2);
+    }
+
+    .review-actions { flex-shrink: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .r-action-btn {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: var(--surface2); border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; cursor: pointer; transition: all 0.2s; color: var(--muted2);
+    }
+    .r-action-btn:hover { border-color: var(--border3); color: var(--text); }
+
+    /* ── COMPLAINT CATEGORIES ── */
+    .cats-body { padding: 1.1rem 1.25rem; display: flex; flex-direction: column; gap: 0.85rem; }
+
+    .cat-row {
+      display: flex; align-items: center; gap: 0.85rem;
+    }
+
+    .cat-emoji-sm { font-size: 1.1rem; flex-shrink: 0; }
+
+    .cat-info { flex: 1; }
+    .cat-name-sm { font-size: 0.82rem; font-weight: 700; font-family: 'Cairo', sans-serif; margin-bottom: 0.3rem; display: flex; justify-content: space-between; }
+    .cat-count-sm { font-size: 0.7rem; color: var(--muted); }
+
+    .cat-bar-wrap { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+    .cat-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(to left, var(--accent2), var(--accent)); }
+
+    /* ── ALERT STATUS CARD ── */
+    .status-card { padding: 1.1rem 1.25rem; }
+
+    .status-big {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem; border-radius: 12px; margin-bottom: 1rem;
+    }
+    .sb-warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.18); }
+
+    .status-icon-big {
+      width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+      background: rgba(245,158,11,0.12);
+    }
+
+    .status-info h3 { font-size: 0.95rem; font-weight: 800; font-family: 'Cairo', sans-serif; color: #fbbf24; margin-bottom: 0.2rem; }
+    .status-info p  { font-size: 0.78rem; color: var(--muted2); line-height: 1.5; }
+
+    .status-items { display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .status-item {
+      display: flex; align-items: center; gap: 0.65rem;
+      font-size: 0.8rem; color: var(--muted2);
+    }
+
+    .si-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .sid-red    { background: var(--red); }
+    .sid-yellow { background: var(--yellow); }
+    .sid-green  { background: var(--green); }
+
+    /* ── CHART SECTION ── */
+    .chart-card { margin-bottom: 1.5rem; }
+
+    .chart-body { padding: 1.25rem; }
+
+    .chart-bars-wrap {
+      display: flex; align-items: flex-end; gap: 8px;
+      height: 80px;
+    }
+
+    .cb-col { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+
+    .cb-fill {
+      width: 100%; border-radius: 5px 5px 0 0;
+      background: linear-gradient(to top, var(--accent), var(--accent2));
+      opacity: 0.75; transition: opacity 0.2s;
+      animation: growUp 0.6s ease forwards;
+      transform-origin: bottom;
+    }
+    .cb-fill:hover { opacity: 1; }
+    @keyframes growUp { from{transform:scaleY(0)} to{transform:scaleY(1)} }
+
+    .cb-lbl { font-size: 0.62rem; color: var(--muted); font-family: 'Cairo', sans-serif; }
+
+    /* ── BOTTOM GRID ── */
+    .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+    /* ── RECENT ALERTS ── */
+    .alert-list { display: flex; flex-direction: column; }
+
+    .alert-item {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.9rem;
+      transition: background 0.15s; cursor: pointer;
+    }
+    .alert-item:last-child { border-bottom: none; }
+    .alert-item:hover { background: rgba(255,255,255,0.02); }
+
+    .alert-dot-wrap {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 0.95rem;
+    }
+    .adw-red    { background: rgba(244,63,94,0.12); border: 1px solid rgba(244,63,94,0.18); }
+    .adw-yellow { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.18); }
+    .adw-green  { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.18); }
+
+    .alert-info { flex: 1; }
+    .alert-title-sm { font-size: 0.82rem; font-weight: 700; font-family: 'Cairo', sans-serif; margin-bottom: 0.15rem; }
+    .alert-sub-sm   { font-size: 0.72rem; color: var(--muted); }
+
+    .alert-time-sm { font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+
+    /* ── BUSINESSES MINI ── */
+    .biz-list { display: flex; flex-direction: column; }
+
+    .biz-item {
+      padding: 0.9rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.85rem;
+      transition: background 0.15s; cursor: pointer;
+    }
+    .biz-item:last-child { border-bottom: none; }
+    .biz-item:hover { background: rgba(255,255,255,0.02); }
+
+    .biz-av {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+      background: var(--surface2); border: 1px solid var(--border2);
+    }
+
+    .biz-info { flex: 1; }
+    .biz-name-sm  { font-size: 0.82rem; font-weight: 700; font-family: 'Cairo', sans-serif; }
+    .biz-count-sm { font-size: 0.7rem; color: var(--muted); margin-top: 1px; }
+
+    .biz-status-sm {
+      font-size: 0.68rem; font-weight: 700;
+      font-family: 'Cairo', sans-serif; padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+    }
+    .bss-warning  { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+    .bss-critical { background: rgba(244,63,94,0.12); color: #fb7185; border: 1px solid rgba(244,63,94,0.2); }
+    .bss-stable   { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 3rem; text-align: center;
+    }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .empty-title { font-size: 0.95rem; font-weight: 700; font-family: 'Cairo', sans-serif; margin-bottom: 0.4rem; }
+    .empty-sub { font-size: 0.82rem; color: var(--muted2); }
+
+    /* ── MOBILE MENU BTN ── */
+    .menu-toggle {
+      display: none; width: 34px; height: 34px;
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 9px; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: pointer;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) {
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .two-col  { grid-template-columns: 1fr; }
+      .bottom-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      :root { --sidebar-w: 0px; }
+      .sidebar { transform: translateX(100%); width: 230px; }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-right: 0; }
+      .menu-toggle { display: flex; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .page-content { padding: 1.25rem; }
+    }
+
+    @media (max-width: 480px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── OVERLAY ── */
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5); z-index: 45;
+      backdrop-filter: blur(4px);
+    }
+    .sidebar-overlay.show { display: block; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- ══════════════════════════════════
+     SIDEBAR
+══════════════════════════════════ -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🛡️</div>
+    <span class="logo-text" id="logo-name">ريفيوغارد</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label" id="nav-main-label">الرئيسية</div>
+
+    <div class="nav-item active" onclick="setPage('dashboard')">
+      <span class="nav-icon">🏠</span>
+      <span id="nav-dashboard">لوحة التحكم</span>
+    </div>
+
+    <div class="nav-item" onclick="setPage('businesses')">
+      <span class="nav-icon">🏢</span>
+      <span id="nav-businesses">الأعمال التجارية</span>
+    </div>
+
+    <div class="nav-section-label" id="nav-monitor-label">المراقبة</div>
+
+    <div class="nav-item" onclick="setPage('reviews')">
+      <span class="nav-icon">⭐</span>
+      <span id="nav-reviews">التقييمات</span>
+      <span class="nav-badge">14</span>
+    </div>
+
+    <div class="nav-item" onclick="setPage('alerts')">
+      <span class="nav-icon">🔔</span>
+      <span id="nav-alerts">التنبيهات</span>
+      <span class="nav-badge">3</span>
+    </div>
+
+    <div class="nav-item" onclick="setPage('categories')">
+      <span class="nav-icon">📊</span>
+      <span id="nav-categories">تصنيف الشكاوى</span>
+    </div>
+
+    <div class="nav-section-label" id="nav-account-label">الحساب</div>
+
+    <div class="nav-item" onclick="setPage('settings')">
+      <span class="nav-icon">⚙️</span>
+      <span id="nav-settings">الإعدادات</span>
+    </div>
+
+    <div class="nav-item" onclick="window.location.href='index.html'">
+      <span class="nav-icon">🚪</span>
+      <span id="nav-logout">تسجيل الخروج</span>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av" id="user-av">مح</div>
+      <div class="user-info">
+        <div class="user-name" id="user-name">محمد الأحمد</div>
+        <div class="user-plan" id="user-plan">الخطة المجانية</div>
+      </div>
+      <span style="color:var(--muted);font-size:0.8rem;">⚙️</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MAIN
+══════════════════════════════════ -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div>
+        <div class="page-title" id="page-title">لوحة التحكم</div>
+        <div class="page-sub" id="page-sub">الأربعاء، 7 مايو 2025</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="lang-btn" onclick="switchLang()" id="langBtn">EN</button>
+      <div class="icon-btn" title="البحث">🔍</div>
+      <div class="icon-btn" title="التنبيهات">
+        🔔
+        <div class="notif-dot"></div>
+      </div>
+      <button class="add-btn" onclick="openAddBusiness()">
+        <span>+</span>
+        <span id="add-btn-text">إضافة عمل</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PAGE CONTENT -->
+  <div class="page-content">
+
+    <!-- WELCOME BANNER -->
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h2 id="welcome-h2">صباح الخير، محمد 👋</h2>
+        <p id="welcome-p">لديك 3 تقييمات سلبية جديدة منذ آخر زيارة. تحقق منها الآن.</p>
+      </div>
+      <div class="welcome-status ws-warning">
+        <div class="ws-dot"></div>
+        <span id="welcome-status-text">حالة التحذير</span>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+      <div class="kpi-card red">
+        <div class="kpi-header">
+          <div class="kpi-label" id="kpi1l">إجمالي التقييمات السلبية</div>
+          <div class="kpi-icon">⭐</div>
+        </div>
+        <div class="kpi-val" style="color:var(--red);">14</div>
+        <div class="kpi-delta up" id="kpi1d">↑ 3 جديدة هذا الأسبوع</div>
+      </div>
+
+      <div class="kpi-card yellow">
+        <div class="kpi-header">
+          <div class="kpi-label" id="kpi2l">متوسط التقييم</div>
+          <div class="kpi-icon">📊</div>
+        </div>
+        <div class="kpi-val" style="color:var(--yellow);">3.2</div>
+        <div class="kpi-delta up" id="kpi2d">↓ 0.3 هذا الشهر</div>
+      </div>
+
+      <div class="kpi-card purple">
+        <div class="kpi-header">
+          <div class="kpi-label" id="kpi3l">أعمال تجارية مراقبة</div>
+          <div class="kpi-icon">🏢</div>
+        </div>
+        <div class="kpi-val" style="color:var(--accent2);">2</div>
+        <div class="kpi-delta neutral" id="kpi3d">من أصل 1 مسموح</div>
+      </div>
+
+      <div class="kpi-card cyan">
+        <div class="kpi-header">
+          <div class="kpi-label" id="kpi4l">أكثر فئة شكوى</div>
+          <div class="kpi-icon">📋</div>
+        </div>
+        <div class="kpi-val" style="font-size:1.1rem;color:var(--accent3);" id="kpi4v">بطء الخدمة</div>
+        <div class="kpi-delta neutral" id="kpi4d">6 شكاوى متكررة</div>
+      </div>
+    </div>
+
+    <!-- CHART -->
+    <div class="card chart-card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>📈</span>
+          <span id="chart-title">التقييمات السلبية — آخر 7 أيام</span>
+        </div>
+        <div class="kpi-delta up" style="font-size:0.75rem;" id="chart-delta">↑ 34% هذا الأسبوع</div>
+      </div>
+      <div class="chart-body">
+        <div class="chart-bars-wrap" id="chartBars"></div>
+      </div>
+    </div>
+
+    <!-- REVIEWS + CATEGORIES -->
+    <div class="two-col">
+
+      <!-- REVIEWS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🔴</span>
+            <span id="reviews-title">أحدث التقييمات السلبية</span>
+            <span class="card-count">14</span>
+          </div>
+          <span class="card-action" id="reviews-action">عرض الكل ←</span>
+        </div>
+
+        <div class="filter-bar">
+          <button class="filter-btn active" id="fb-all" onclick="setFilter('all',this)">الكل</button>
+          <button class="filter-btn" id="fb-critical" onclick="setFilter('critical',this)">حرج</button>
+          <button class="filter-btn" id="fb-urgent" onclick="setFilter('urgent',this)">عاجل</button>
+          <button class="filter-btn" id="fb-moderate" onclick="setFilter('moderate',this)">متوسط</button>
+          <div class="filter-sep"></div>
+          <input class="search-input" id="reviewSearch" placeholder="ابحث في التقييمات..." oninput="filterReviews()" />
+        </div>
+
+        <div class="review-list" id="reviewList"></div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+        <!-- STATUS CARD -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span>🚦</span> <span id="status-title">حالة السمعة</span></div>
+          </div>
+          <div class="status-card">
+            <div class="status-big sb-warning">
+              <div class="status-icon-big">⚠️</div>
+              <div class="status-info">
+                <h3 id="status-main">تحذير</h3>
+                <p id="status-desc">عدد الشكاوى ارتفع هذا الأسبوع. تابع الوضع عن كثب.</p>
+              </div>
+            </div>
+            <div class="status-items">
+              <div class="status-item"><div class="si-dot sid-red"></div><span id="si1">3 تقييمات 1 نجمة هذا الأسبوع</span></div>
+              <div class="status-item"><div class="si-dot sid-yellow"></div><span id="si2">شكاوى بطء الخدمة في ارتفاع</span></div>
+              <div class="status-item"><div class="si-dot sid-green"></div><span id="si3">لا توجد تقييمات جديدة منذ 2 ساعة</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CATEGORIES CARD -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span>📊</span> <span id="cats-title">فئات الشكاوى</span></div>
+          </div>
+          <div class="cats-body">
+            <div class="cat-row">
+              <div class="cat-emoji-sm">😠</div>
+              <div class="cat-info">
+                <div class="cat-name-sm"><span id="c1n">سلوك الموظفين</span><span style="color:var(--muted2);">38</span></div>
+                <div class="cat-bar-wrap"><div class="cat-bar-fill" style="width:78%;"></div></div>
+              </div>
+            </div>
+            <div class="cat-row">
+              <div class="cat-emoji-sm">⏱️</div>
+              <div class="cat-info">
+                <div class="cat-name-sm"><span id="c2n">بطء الخدمة</span><span style="color:var(--muted2);">31</span></div>
+                <div class="cat-bar-wrap"><div class="cat-bar-fill" style="width:63%;"></div></div>
+              </div>
+            </div>
+            <div class="cat-row">
+              <div class="cat-emoji-sm">🧹</div>
+              <div class="cat-info">
+                <div class="cat-name-sm"><span id="c3n">النظافة</span><span style="color:var(--muted2);">22</span></div>
+                <div class="cat-bar-wrap"><div class="cat-bar-fill" style="width:45%;"></div></div>
+              </div>
+            </div>
+            <div class="cat-row">
+              <div class="cat-emoji-sm">💰</div>
+              <div class="cat-info">
+                <div class="cat-name-sm"><span id="c4n">الأسعار</span><span style="color:var(--muted2);">18</span></div>
+                <div class="cat-bar-wrap"><div class="cat-bar-fill" style="width:37%;"></div></div>
+              </div>
+            </div>
+            <div class="cat-row">
+              <div class="cat-emoji-sm">🍽️</div>
+              <div class="cat-info">
+                <div class="cat-name-sm"><span id="c5n">جودة المنتج</span><span style="color:var(--muted2);">14</span></div>
+                <div class="cat-bar-wrap"><div class="cat-bar-fill" style="width:28%;"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BOTTOM GRID -->
+    <div class="bottom-grid">
+
+      <!-- RECENT ALERTS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span>🔔</span> <span id="alerts-title">آخر التنبيهات</span></div>
+          <span class="card-action" id="alerts-action">عرض الكل ←</span>
+        </div>
+        <div class="alert-list">
+          <div class="alert-item">
+            <div class="alert-dot-wrap adw-red">⚠️</div>
+            <div class="alert-info">
+              <div class="alert-title-sm" id="al1t">تقييم 1 نجمة — مطعم الأصيل</div>
+              <div class="alert-sub-sm" id="al1s">تقييم حرج يتطلب متابعة فورية</div>
+            </div>
+            <div class="alert-time-sm">الآن</div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-dot-wrap adw-yellow">⏰</div>
+            <div class="alert-info">
+              <div class="alert-title-sm" id="al2t">تقييم 2 نجمة — صالون بيوتي</div>
+              <div class="alert-sub-sm" id="al2s">شكوى عن سلوك الموظفين</div>
+            </div>
+            <div class="alert-time-sm" id="al2time">م. 2 ساعة</div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-dot-wrap adw-yellow">📋</div>
+            <div class="alert-info">
+              <div class="alert-title-sm" id="al3t">ملخص يومي أُرسل</div>
+              <div class="alert-sub-sm" id="al3s">تم إرسال ملخص 5 تقييمات إلى بريدك</div>
+            </div>
+            <div class="alert-time-sm" id="al3time">م. 6 ساعات</div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-dot-wrap adw-green">✅</div>
+            <div class="alert-info">
+              <div class="alert-title-sm" id="al4t">فحص مجدول اكتمل</div>
+              <div class="alert-sub-sm" id="al4s">تم فحص جميع الأعمال بنجاح</div>
+            </div>
+            <div class="alert-time-sm" id="al4time">أمس</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUSINESSES MINI -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span>🏢</span> <span id="biz-title">أعمالي التجارية</span></div>
+          <span class="card-action" id="biz-action">إدارة ←</span>
+        </div>
+        <div class="biz-list">
+          <div class="biz-item">
+            <div class="biz-av">🍽️</div>
+            <div class="biz-info">
+              <div class="biz-name-sm" id="biz1n">مطعم الأصيل</div>
+              <div class="biz-count-sm" id="biz1c">9 تقييمات سلبية · آخر فحص: 12 دقيقة</div>
+            </div>
+            <div class="biz-status-sm bss-warning" id="biz1s">تحذير</div>
+          </div>
+          <div class="biz-item">
+            <div class="biz-av">💇</div>
+            <div class="biz-info">
+              <div class="biz-name-sm" id="biz2n">صالون بيوتي كير</div>
+              <div class="biz-count-sm" id="biz2c">5 تقييمات سلبية · آخر فحص: 45 دقيقة</div>
+            </div>
+            <div class="biz-status-sm bss-critical" id="biz2s">حرج</div>
+          </div>
+          <div class="biz-item" style="opacity:0.5;cursor:default;">
+            <div class="biz-av" style="border-style:dashed;">+</div>
+            <div class="biz-info">
+              <div class="biz-name-sm" id="biz-add-text">أضف نشاطاً تجارياً</div>
+              <div class="biz-count-sm" id="biz-add-sub">ترقّ إلى Pro لإضافة المزيد</div>
+            </div>
+            <div class="biz-status-sm" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border2);" id="biz3s">Pro</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- end page-content -->
+</div><!-- end main -->
+
+<script>
+/* ══════════ DATA ══════════ */
+var reviews = [
+  { id:1, author:'سارة المطيري', date:'منذ ساعتين', biz:'مطعم الأصيل', stars:2, text:'الموظفون كانوا وقحين جداً وانتظرنا 45 دقيقة. لن أعود أبداً.', tags:['موظفون','بطء الخدمة'], level:'critical', read:false,
+    authorEn:'Sarah Al-Mutairi', dateEn:'2 hours ago', bizEn:'Al-Aseel Restaurant', textEn:'Staff were very rude and we waited 45 minutes. Never coming back.', tagsEn:['Staff','Slow service'] },
+  { id:2, author:'أحمد الخالد', date:'منذ 5 ساعات', biz:'مطعم الأصيل', stars:1, text:'تجربة سيئة جداً. الطعام وصل بارداً والمكان لم يكن نظيفاً والأسعار مبالغ فيها.', tags:['نظافة','أسعار','جودة'], level:'critical', read:false,
+    authorEn:'Ahmed Al-Khaled', dateEn:'5 hours ago', bizEn:'Al-Aseel Restaurant', textEn:'Terrible experience. Food arrived cold, the place was not clean, prices too high.', tagsEn:['Cleanliness','Pricing','Quality'] },
+  { id:3, author:'نورة العتيبي', date:'بالأمس', biz:'مطعم الأصيل', stars:2, text:'وقت انتظار طويل جداً. الخدمة بطيئة مقارنة بالأماكن المجاورة.', tags:['بطء الخدمة'], level:'urgent', read:true,
+    authorEn:'Nora Al-Otaibi', dateEn:'Yesterday', bizEn:'Al-Aseel Restaurant', textEn:'Very long wait time. Service is slow compared to nearby places.', tagsEn:['Slow service'] },
+  { id:4, author:'خالد الرشيدي', date:'منذ يومين', biz:'صالون بيوتي كير', stars:1, text:'الموظفة لم تستمع لطلباتي وكانت غير محترمة. لن أنصح أحداً بهذا المكان.', tags:['موظفون','خدمة العملاء'], level:'critical', read:true,
+    authorEn:'Khaled Al-Rashidi', dateEn:'2 days ago', bizEn:'BeautyCare Salon', textEn:'The stylist did not listen to my requests and was disrespectful. Not recommended.', tagsEn:['Staff','Customer service'] },
+  { id:5, author:'منى الشهري', date:'منذ 3 أيام', biz:'صالون بيوتي كير', stars:2, text:'الأسعار مرتفعة جداً مقارنة بجودة الخدمة المقدمة.', tags:['أسعار','جودة'], level:'urgent', read:true,
+    authorEn:'Mona Al-Shahri', dateEn:'3 days ago', bizEn:'BeautyCare Salon', textEn:'Prices are very high compared to the quality of service provided.', tagsEn:['Pricing','Quality'] },
+];
+
+var currentFilter = 'all';
+var isAr = true;
+
+/* ══════════ CHART ══════════ */
+var chartData = [2, 5, 3, 8, 6, 11, 9];
+var daysAr = ['الأحد','الاثن','الثلا','الأرب','الخمس','الجمع','السبت'];
+var daysEn = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function buildChart() {
+  var max = Math.max.apply(null, chartData);
+  var c = document.getElementById('chartBars');
+  var days = isAr ? daysAr : daysEn;
+  c.innerHTML = '';
+  chartData.forEach(function(v, i) {
+    var pct = Math.round((v / max) * 100);
+    var col = document.createElement('div');
+    col.className = 'cb-col';
+    col.innerHTML = '<div class="cb-fill" style="height:'+pct+'%;animation-delay:'+(i*0.07)+'s" title="'+v+'"></div><div class="cb-lbl">'+days[i]+'</div>';
+    c.appendChild(col);
+  });
+}
+
+/* ══════════ REVIEWS ══════════ */
+function starsHtml(n, col) {
+  var s = '';
+  for (var i = 1; i <= 5; i++) s += (i <= n ? '★' : '☆');
+  return '<span class="r-stars" style="color:'+col+';">'+s+'</span>';
+}
+
+function renderReviews() {
+  var search = document.getElementById('reviewSearch').value.toLowerCase();
+  var list = document.getElementById('reviewList');
+  list.innerHTML = '';
+  var shown = 0;
+
+  reviews.forEach(function(r) {
+    if (currentFilter !== 'all' && r.level !== currentFilter) return;
+    var txt = isAr ? r.text : r.textEn;
+    var auth = isAr ? r.author : r.authorEn;
+    if (search && txt.toLowerCase().indexOf(search) === -1 && auth.toLowerCase().indexOf(search) === -1) return;
+
+    shown++;
+    var col = r.stars <= 1 ? 'var(--red)' : r.level === 'urgent' ? 'var(--yellow)' : 'var(--red)';
+    var badgeCls = r.level === 'critical' ? 'rb-critical' : r.level === 'urgent' ? 'rb-urgent' : 'rb-moderate';
+    var badgeTxt = isAr
+      ? (r.level === 'critical' ? 'حرج' : r.level === 'urgent' ? 'عاجل' : 'متوسط')
+      : (r.level === 'critical' ? 'Critical' : r.level === 'urgent' ? 'Urgent' : 'Moderate');
+
+    var tags = (isAr ? r.tags : r.tagsEn).map(function(t){ return '<span class="r-tag">'+t+'</span>'; }).join('');
+
+    var div = document.createElement('div');
+    div.className = 'review-item' + (r.read ? '' : ' unread');
+    div.innerHTML =
+      '<div class="review-left">'+
+        starsHtml(r.stars, col)+
+        '<span class="r-badge '+badgeCls+'">'+badgeTxt+'</span>'+
+      '</div>'+
+      '<div class="review-body">'+
+        '<div class="review-meta-top">'+
+          '<span class="r-author">'+(isAr ? r.author : r.authorEn)+'</span>'+
+          '<span class="r-date">'+(isAr ? r.date : r.dateEn)+'</span>'+
+          '<span class="r-biz">'+(isAr ? r.biz : r.bizEn)+'</span>'+
+        '</div>'+
+        '<div class="r-text">"'+txt+'"</div>'+
+        '<div class="r-tags">'+tags+'</div>'+
+      '</div>'+
+      '<div class="review-actions">'+
+        '<div class="r-action-btn" title="'+(isAr?'تمييز':'Mark')+'">🏷</div>'+
+        '<div class="r-action-btn" title="'+(isAr?'أرشفة':'Archive')+'">📁</div>'+
+      '</div>';
+    list.appendChild(div);
+  });
+
+  if (shown === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">'+(isAr?'لا توجد نتائج':'No results')+'</div><div class="empty-sub">'+(isAr?'جرّب تغيير الفلتر أو كلمة البحث':'Try changing the filter or search term')+'</div></div>';
+  }
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderReviews();
+}
+
+function filterReviews() { renderReviews(); }
+
+/* ══════════ LANG ══════════ */
+var T = {
+  'logo-name':         {ar:'ريفيوغارد', en:'ReviewGuard'},
+  'nav-main-label':    {ar:'الرئيسية', en:'Main'},
+  'nav-dashboard':     {ar:'لوحة التحكم', en:'Dashboard'},
+  'nav-businesses':    {ar:'الأعمال التجارية', en:'Businesses'},
+  'nav-monitor-label': {ar:'المراقبة', en:'Monitoring'},
+  'nav-reviews':       {ar:'التقييمات', en:'Reviews'},
+  'nav-alerts':        {ar:'التنبيهات', en:'Alerts'},
+  'nav-categories':    {ar:'تصنيف الشكاوى', en:'Categories'},
+  'nav-account-label': {ar:'الحساب', en:'Account'},
+  'nav-settings':      {ar:'الإعدادات', en:'Settings'},
+  'nav-logout':        {ar:'تسجيل الخروج', en:'Logout'},
+  'user-name':         {ar:'محمد الأحمد', en:'Mohammed Al-Ahmad'},
+  'user-av':           {ar:'مح', en:'MA'},
+  'user-plan':         {ar:'الخطة المجانية', en:'Free Plan'},
+  'page-title':        {ar:'لوحة التحكم', en:'Dashboard'},
+  'page-sub':          {ar:'الأربعاء، 7 مايو 2025', en:'Wednesday, May 7 2025'},
+  'add-btn-text':      {ar:'إضافة عمل', en:'Add business'},
+  'welcome-h2':        {ar:'صباح الخير، محمد 👋', en:'Good morning, Mohammed 👋'},
+  'welcome-p':         {ar:'لديك 3 تقييمات سلبية جديدة منذ آخر زيارة. تحقق منها الآن.', en:'You have 3 new negative reviews since your last visit. Check them now.'},
+  'welcome-status-text':{ar:'حالة التحذير', en:'Warning Status'},
+  'kpi1l':             {ar:'إجمالي التقييمات السلبية', en:'Total Negative Reviews'},
+  'kpi1d':             {ar:'↑ 3 جديدة هذا الأسبوع', en:'↑ 3 new this week'},
+  'kpi2l':             {ar:'متوسط التقييم', en:'Average Rating'},
+  'kpi2d':             {ar:'↓ 0.3 هذا الشهر', en:'↓ 0.3 this month'},
+  'kpi3l':             {ar:'أعمال تجارية مراقبة', en:'Monitored Businesses'},
+  'kpi3d':             {ar:'من أصل 1 مسموح', en:'of 1 allowed (free)'},
+  'kpi4l':             {ar:'أكثر فئة شكوى', en:'Top Complaint Category'},
+  'kpi4v':             {ar:'بطء الخدمة', en:'Slow Service'},
+  'kpi4d':             {ar:'6 شكاوى متكررة', en:'6 recurring complaints'},
+  'chart-title':       {ar:'التقييمات السلبية — آخر 7 أيام', en:'Negative Reviews — Last 7 days'},
+  'chart-delta':       {ar:'↑ 34% هذا الأسبوع', en:'↑ 34% this week'},
+  'reviews-title':     {ar:'أحدث التقييمات السلبية', en:'Latest Negative Reviews'},
+  'reviews-action':    {ar:'عرض الكل ←', en:'View all →'},
+  'fb-all':            {ar:'الكل', en:'All'},
+  'fb-critical':       {ar:'حرج', en:'Critical'},
+  'fb-urgent':         {ar:'عاجل', en:'Urgent'},
+  'fb-moderate':       {ar:'متوسط', en:'Moderate'},
+  'reviewSearch':      {ar:'ابحث في التقييمات...', en:'Search reviews...'},
+  'status-title':      {ar:'حالة السمعة', en:'Reputation Status'},
+  'status-main':       {ar:'تحذير', en:'Warning'},
+  'status-desc':       {ar:'عدد الشكاوى ارتفع هذا الأسبوع. تابع الوضع عن كثب.', en:'Complaints increased this week. Monitor closely.'},
+  'si1':               {ar:'3 تقييمات 1 نجمة هذا الأسبوع', en:'3 one-star reviews this week'},
+  'si2':               {ar:'شكاوى بطء الخدمة في ارتفاع', en:'Slow service complaints rising'},
+  'si3':               {ar:'لا توجد تقييمات جديدة منذ 2 ساعة', en:'No new reviews in the last 2 hours'},
+  'cats-title':        {ar:'فئات الشكاوى', en:'Complaint Categories'},
+  'c1n':               {ar:'سلوك الموظفين', en:'Staff behavior'},
+  'c2n':               {ar:'بطء الخدمة', en:'Slow service'},
+  'c3n':               {ar:'النظافة', en:'Cleanliness'},
+  'c4n':               {ar:'الأسعار', en:'Pricing'},
+  'c5n':               {ar:'جودة المنتج', en:'Product quality'},
+  'alerts-title':      {ar:'آخر التنبيهات', en:'Recent Alerts'},
+  'alerts-action':     {ar:'عرض الكل ←', en:'View all →'},
+  'al1t':              {ar:'تقييم 1 نجمة — مطعم الأصيل', en:'1-star review — Al-Aseel Restaurant'},
+  'al1s':              {ar:'تقييم حرج يتطلب متابعة فورية', en:'Critical review requiring immediate attention'},
+  'al2t':              {ar:'تقييم 2 نجمة — صالون بيوتي', en:'2-star review — BeautyCare Salon'},
+  'al2s':              {ar:'شكوى عن سلوك الموظفين', en:'Complaint about staff behavior'},
+  'al2time':           {ar:'م. 2 ساعة', en:'2h ago'},
+  'al3t':              {ar:'ملخص يومي أُرسل', en:'Daily digest sent'},
+  'al3s':              {ar:'تم إرسال ملخص 5 تقييمات إلى بريدك', en:'Summary of 5 reviews sent to your email'},
+  'al3time':           {ar:'م. 6 ساعات', en:'6h ago'},
+  'al4t':              {ar:'فحص مجدول اكتمل', en:'Scheduled scan completed'},
+  'al4s':              {ar:'تم فحص جميع الأعمال بنجاح', en:'All businesses scanned successfully'},
+  'al4time':           {ar:'أمس', en:'Yesterday'},
+  'biz-title':         {ar:'أعمالي التجارية', en:'My Businesses'},
+  'biz-action':        {ar:'إدارة ←', en:'Manage →'},
+  'biz1n':             {ar:'مطعم الأصيل', en:'Al-Aseel Restaurant'},
+  'biz1c':             {ar:'9 تقييمات سلبية · آخر فحص: 12 دقيقة', en:'9 negative reviews · Last scan: 12 min'},
+  'biz1s':             {ar:'تحذير', en:'Warning'},
+  'biz2n':             {ar:'صالون بيوتي كير', en:'BeautyCare Salon'},
+  'biz2c':             {ar:'5 تقييمات سلبية · آخر فحص: 45 دقيقة', en:'5 negative reviews · Last scan: 45 min'},
+  'biz2s':             {ar:'حرج', en:'Critical'},
+  'biz-add-text':      {ar:'أضف نشاطاً تجارياً', en:'Add a business'},
+  'biz-add-sub':       {ar:'ترقّ إلى Pro لإضافة المزيد', en:'Upgrade to Pro for more'},
+  'biz3s':             {ar:'Pro', en:'Pro'},
+};
+
+function switchLang() {
+  isAr = !isAr;
+  var l = isAr ? 'ar' : 'en';
+  document.documentElement.lang = l;
+  document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+  document.getElementById('langBtn').textContent = isAr ? 'EN' : 'عربي';
+  Object.keys(T).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && T[id] && T[id][l] !== undefined) {
+      if (el.tagName === 'INPUT') el.placeholder = T[id][l];
+      else el.innerHTML = T[id][l];
+    }
+  });
+  buildChart();
+  renderReviews();
+}
+
+/* ══════════ NAV ══════════ */
+function setPage(p) {
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  event.currentTarget.classList.add('active');
+  if (window.innerWidth <= 768) toggleSidebar();
+  var pages = { businesses:'businesses.html', alerts:'alerts.html', settings:'settings.html' };
+  if (pages[p]) window.location.href = pages[p];
+}
+
+/* ══════════ SIDEBAR MOBILE ══════════ */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+/* ══════════ ADD BUSINESS ══════════ */
+function openAddBusiness() {
+  window.location.href = 'businesses.html';
+}
+
+/* ══════════ INIT ══════════ */
+buildChart();
+renderReviews();
+</script>
+</body>
+</html>

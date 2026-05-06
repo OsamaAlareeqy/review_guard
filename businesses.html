@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ريفيوغارد — الأعمال التجارية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #07080f;
+      --bg2: #0d0e1a;
+      --bg3: #12131f;
+      --surface: #16172a;
+      --surface2: #1c1e32;
+      --border: rgba(255,255,255,0.06);
+      --border2: rgba(255,255,255,0.10);
+      --border3: rgba(255,255,255,0.18);
+      --text: #eeeef5;
+      --muted: #6b6d8a;
+      --muted2: #9496b8;
+      --accent: #c84b8a;
+      --accent2: #8b5cf6;
+      --accent3: #06b6d4;
+      --red: #f43f5e;
+      --yellow: #f59e0b;
+      --green: #10b981;
+      --sidebar-w: 230px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Tajawal', 'Cairo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    h1,h2,h3,h4,.logo-text { font-family: 'Cairo', sans-serif; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── SIDEBAR (same as dashboard) ─── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--bg2);
+      border-left: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; right: 0; z-index: 50;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 1.4rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; flex-shrink: 0;
+    }
+
+    .logo-text { font-size: 1rem; font-weight: 700; }
+
+    .sidebar-nav { flex: 1; padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 2px; }
+
+    .nav-section-label {
+      font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); padding: 0.75rem 0.65rem 0.4rem;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.6rem 0.75rem; border-radius: 10px;
+      font-size: 0.85rem; color: var(--muted2);
+      cursor: pointer; transition: all 0.18s;
+      font-family: 'Cairo', sans-serif; font-weight: 500;
+    }
+    .nav-item:hover { color: var(--text); background: var(--surface); }
+    .nav-item.active { color: #fff; background: rgba(200,75,138,0.12); border: 1px solid rgba(200,75,138,0.18); }
+    .nav-icon { font-size: 1rem; flex-shrink: 0; }
+    .nav-badge { margin-right: auto; background: var(--red); color: #fff; font-size: 0.62rem; font-weight: 700; padding: 0.1rem 0.45rem; border-radius: 100px; font-family: 'Cairo', sans-serif; }
+
+    .sidebar-footer { padding: 1rem 0.75rem; border-top: 1px solid var(--border); }
+
+    .user-row {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.65rem 0.75rem; border-radius: 10px; cursor: pointer; transition: background 0.18s;
+    }
+    .user-row:hover { background: var(--surface); }
+
+    .user-av {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; flex-shrink: 0; font-family: 'Cairo', sans-serif;
+    }
+
+    .user-info { flex: 1; overflow: hidden; }
+    .user-name { font-size: 0.82rem; font-weight: 700; font-family: 'Cairo', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-plan { font-size: 0.68rem; color: var(--muted); }
+
+    /* ─── MAIN ─── */
+    .main { margin-right: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+    .topbar {
+      height: 60px;
+      background: rgba(7,8,15,0.85); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; position: sticky; top: 0; z-index: 40;
+    }
+
+    .page-title { font-size: 1rem; font-weight: 700; font-family: 'Cairo', sans-serif; }
+    .page-sub   { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+
+    .topbar-actions { display: flex; align-items: center; gap: 0.6rem; }
+
+    .lang-btn {
+      background: var(--surface); border: 1px solid var(--border2);
+      color: var(--muted2); padding: 0.3rem 0.75rem;
+      border-radius: 8px; font-size: 0.75rem;
+      font-family: 'Cairo', sans-serif; cursor: pointer; transition: all 0.2s;
+    }
+    .lang-btn:hover { color: var(--text); border-color: var(--border3); }
+
+    .icon-btn {
+      width: 34px; height: 34px; background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 9px; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: pointer; transition: all 0.2s; position: relative;
+    }
+    .icon-btn:hover { border-color: var(--border3); }
+
+    .notif-dot { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--red); border: 1.5px solid var(--bg2); }
+
+    .add-btn {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 1rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; border: none; border-radius: 9px;
+      font-size: 0.82rem; font-weight: 700;
+      font-family: 'Cairo', sans-serif; cursor: pointer; transition: all 0.2s;
+    }
+    .add-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(200,75,138,0.35); }
+
+    .menu-toggle {
+      display: none; width: 34px; height: 34px;
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 9px; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: pointer;
+    }
+
+    /* ─── PAGE CONTENT ─── */
+    .page-content { padding: 2rem; flex: 1; }
+
+    /* ─── STATS ROW ─── */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1rem; margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.2rem 1.5rem;
+      display: flex; align-items: center; gap: 1rem;
+      position: relative; overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; right: 0; left: 0;
+      height: 2px; border-radius: 14px 14px 0 0;
+    }
+    .stat-card.red::before    { background: linear-gradient(to left, transparent, var(--red)); }
+    .stat-card.purple::before { background: linear-gradient(to left, transparent, var(--accent2)); }
+    .stat-card.cyan::before   { background: linear-gradient(to left, transparent, var(--accent3)); }
+
+    .stat-icon {
+      width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    }
+    .si-red    { background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.18); }
+    .si-purple { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.18); }
+    .si-cyan   { background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.18); }
+
+    .stat-info { flex: 1; }
+    .stat-val { font-family: 'Cairo', sans-serif; font-size: 1.8rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1; }
+    .stat-lbl { font-size: 0.75rem; color: var(--muted2); margin-top: 0.25rem; }
+
+    /* ─── BUSINESSES GRID ─── */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title {
+      font-size: 1rem; font-weight: 700;
+      font-family: 'Cairo', sans-serif;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    .biz-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    /* ─── BUSINESS CARD ─── */
+    .biz-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+    .biz-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+    .biz-card-header {
+      padding: 1.25rem;
+      display: flex; align-items: flex-start; gap: 1rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .biz-avatar {
+      width: 50px; height: 50px; border-radius: 14px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; border: 1px solid var(--border2);
+    }
+
+    .biz-header-info { flex: 1; }
+    .biz-card-name { font-size: 0.95rem; font-weight: 800; font-family: 'Cairo', sans-serif; margin-bottom: 0.3rem; }
+    .biz-card-url  { font-size: 0.72rem; color: var(--accent3); display: flex; align-items: center; gap: 0.3rem; }
+    .biz-card-url span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
+
+    .biz-status-pill {
+      padding: 0.25rem 0.7rem; border-radius: 100px;
+      font-size: 0.68rem; font-weight: 700;
+      font-family: 'Cairo', sans-serif;
+      display: flex; align-items: center; gap: 0.35rem;
+      flex-shrink: 0;
+    }
+    .bsp-warning  { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+    .bsp-critical { background: rgba(244,63,94,0.12);  color: #fb7185; border: 1px solid rgba(244,63,94,0.2); }
+    .bsp-stable   { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+    .bsp-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; animation: blink 1.8s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .biz-card-body { padding: 1.1rem 1.25rem; }
+
+    .biz-mini-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 0.75rem; margin-bottom: 1rem; }
+
+    .bms { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem; text-align: center; }
+    .bms-val { font-family: 'Cairo', sans-serif; font-size: 1.3rem; font-weight: 900; line-height: 1; margin-bottom: 0.2rem; }
+    .bms-lbl { font-size: 0.65rem; color: var(--muted); }
+
+    .biz-last-scan {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.75rem; color: var(--muted); margin-bottom: 1rem;
+    }
+    .scan-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 1.8s ease-in-out infinite; }
+
+    /* ─── LATEST REVIEW MINI ─── */
+    .biz-latest {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.75rem 0.85rem;
+      margin-bottom: 1rem;
+    }
+    .bl-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
+    .bl-stars { font-size: 0.72rem; color: var(--red); letter-spacing: 1px; }
+    .bl-date  { font-size: 0.68rem; color: var(--muted); }
+    .bl-text  { font-size: 0.78rem; color: var(--muted2); line-height: 1.5; }
+
+    /* ─── CARD ACTIONS ─── */
+    .biz-card-actions {
+      display: flex; gap: 0.5rem;
+    }
+
+    .bca {
+      flex: 1; padding: 0.55rem;
+      border-radius: 9px; font-size: 0.78rem; font-weight: 600;
+      font-family: 'Cairo', sans-serif; cursor: pointer;
+      transition: all 0.18s; display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+      border: 1px solid var(--border2); background: var(--surface2); color: var(--muted2);
+    }
+    .bca:hover { color: var(--text); border-color: var(--border3); }
+    .bca.primary { background: rgba(200,75,138,0.1); border-color: rgba(200,75,138,0.2); color: #e879a8; }
+    .bca.primary:hover { background: rgba(200,75,138,0.18); }
+
+    /* ─── ADD BUSINESS CARD ─── */
+    .add-biz-card {
+      background: var(--surface); border: 2px dashed var(--border2);
+      border-radius: 18px; padding: 2.5rem;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; cursor: pointer; transition: all 0.2s; min-height: 280px;
+    }
+    .add-biz-card:hover { border-color: rgba(200,75,138,0.3); background: rgba(200,75,138,0.03); }
+    .add-biz-card .add-icon { font-size: 2rem; margin-bottom: 1rem; opacity: 0.6; }
+    .add-biz-card h3 { font-size: 0.95rem; font-weight: 700; font-family: 'Cairo', sans-serif; margin-bottom: 0.4rem; }
+    .add-biz-card p  { font-size: 0.82rem; color: var(--muted2); }
+
+    /* ─── UPGRADE BANNER ─── */
+    .upgrade-banner {
+      background: linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(200,75,138,0.06) 100%);
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 16px; padding: 1.5rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap;
+    }
+
+    .ub-left { display: flex; align-items: center; gap: 1rem; }
+    .ub-icon { font-size: 2rem; }
+    .ub-text h3 { font-size: 1rem; font-weight: 800; font-family: 'Cairo', sans-serif; margin-bottom: 0.3rem; }
+    .ub-text p  { font-size: 0.85rem; color: var(--muted2); }
+
+    .upgrade-btn {
+      padding: 0.65rem 1.5rem;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #fff; border: none; border-radius: 10px;
+      font-size: 0.88rem; font-weight: 700;
+      font-family: 'Cairo', sans-serif; cursor: pointer; transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .upgrade-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(139,92,246,0.35); }
+
+    /* ─── MODAL ─── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(7,8,15,0.88); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 22px; width: 100%; max-width: 500px;
+      animation: popIn 0.25s ease;
+    }
+    @keyframes popIn { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+
+    .modal-header {
+      padding: 1.4rem 1.5rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-title { font-size: 1.05rem; font-weight: 800; font-family: 'Cairo', sans-serif; }
+    .modal-close {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: var(--surface2); border: 1px solid var(--border2);
+      color: var(--muted2); cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .modal-close:hover { color: var(--text); }
+
+    .modal-body { padding: 1.5rem; }
+
+    .modal-field { display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 1.2rem; }
+    .modal-field label { font-size: 0.82rem; font-weight: 600; color: var(--muted2); font-family: 'Cairo', sans-serif; }
+
+    .modal-field input, .modal-field select {
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 10px; padding: 0.75rem 1rem;
+      font-size: 0.9rem; font-family: 'Tajawal', sans-serif;
+      color: var(--text); outline: none; transition: all 0.2s; width: 100%;
+      -webkit-appearance: none;
+    }
+    .modal-field input::placeholder { color: var(--muted); }
+    .modal-field input:focus, .modal-field select:focus { border-color: rgba(200,75,138,0.4); box-shadow: 0 0 0 3px rgba(200,75,138,0.1); background: var(--surface2); }
+
+    .modal-field select option { background: var(--bg2); }
+
+    .url-hint {
+      font-size: 0.75rem; color: var(--muted2); margin-top: 0.3rem;
+      padding: 0.6rem 0.85rem; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; line-height: 1.5;
+    }
+
+    .modal-footer { padding: 0 1.5rem 1.5rem; display: flex; gap: 0.75rem; }
+
+    .modal-cancel {
+      flex: 1; padding: 0.75rem; border-radius: 10px;
+      background: transparent; border: 1px solid var(--border2);
+      color: var(--muted2); font-size: 0.9rem; font-weight: 600;
+      font-family: 'Cairo', sans-serif; cursor: pointer; transition: all 0.2s;
+    }
+    .modal-cancel:hover { color: var(--text); border-color: var(--border3); }
+
+    .modal-save {
+      flex: 2; padding: 0.75rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; border: none; border-radius: 10px;
+      font-size: 0.9rem; font-weight: 700;
+      font-family: 'Cairo', sans-serif; cursor: pointer; transition: all 0.2s;
+    }
+    .modal-save:hover { transform: translateY(-1px); }
+
+    /* ─── SUCCESS TOAST ─── */
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
+      background: var(--surface2); border: 1px solid var(--green);
+      color: var(--text); padding: 0.75rem 1.5rem;
+      border-radius: 12px; font-size: 0.85rem; font-family: 'Cairo', sans-serif;
+      display: flex; align-items: center; gap: 0.6rem;
+      transition: transform 0.35s ease; z-index: 300; white-space: nowrap;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ─── DELETE CONFIRM ─── */
+    .delete-modal {
+      background: var(--surface); border: 1px solid rgba(244,63,94,0.3);
+      border-radius: 18px; width: 100%; max-width: 380px; padding: 2rem;
+      text-align: center; animation: popIn 0.25s ease;
+    }
+    .delete-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .delete-modal h3 { font-size: 1.05rem; font-weight: 800; font-family: 'Cairo', sans-serif; margin-bottom: 0.5rem; }
+    .delete-modal p  { font-size: 0.85rem; color: var(--muted2); margin-bottom: 1.5rem; line-height: 1.6; }
+    .delete-actions  { display: flex; gap: 0.75rem; }
+    .del-cancel { flex: 1; padding: 0.7rem; border-radius: 10px; background: var(--surface2); border: 1px solid var(--border2); color: var(--muted2); font-size: 0.88rem; font-weight: 600; font-family: 'Cairo', sans-serif; cursor: pointer; transition: all 0.2s; }
+    .del-confirm { flex: 1; padding: 0.7rem; border-radius: 10px; background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.3); color: #fb7185; font-size: 0.88rem; font-weight: 700; font-family: 'Cairo', sans-serif; cursor: pointer; transition: all 0.2s; }
+    .del-confirm:hover { background: rgba(244,63,94,0.25); }
+
+    /* ─── SIDEBAR OVERLAY ─── */
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 45; backdrop-filter: blur(4px); }
+    .sidebar-overlay.show { display: block; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+
+    @media (max-width: 900px) { .stats-row { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 768px) {
+      :root { --sidebar-w: 0px; }
+      .sidebar { transform: translateX(100%); width: 230px; }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-right: 0; }
+      .menu-toggle { display: flex; }
+      .page-content { padding: 1.25rem; }
+      .stats-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title-text">إضافة نشاط تجاري جديد</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <label id="lbl-biz-name">اسم النشاط التجاري</label>
+        <input type="text" id="bizName" placeholder="مطعم الأصيل" />
+      </div>
+      <div class="modal-field">
+        <label id="lbl-biz-url">رابط خرائط جوجل</label>
+        <input type="url" id="bizUrl" placeholder="https://maps.google.com/..." dir="ltr" />
+        <div class="url-hint" id="url-hint">
+          📍 افتح خرائط جوجل ← ابحث عن نشاطك ← انسخ الرابط من شريط العنوان
+        </div>
+      </div>
+      <div class="modal-field">
+        <label id="lbl-biz-type">نوع النشاط</label>
+        <select id="bizType">
+          <option value="" id="opt-select">اختر النوع...</option>
+          <option value="restaurant" id="opt-restaurant">🍽️ مطعم / كافيه</option>
+          <option value="salon" id="opt-salon">💇 صالون تجميل</option>
+          <option value="gym" id="opt-gym">🏋️ نادي رياضي</option>
+          <option value="clinic" id="opt-clinic">🏥 عيادة / مستوصف</option>
+          <option value="store" id="opt-store">🛍️ متجر</option>
+          <option value="hotel" id="opt-hotel">🏨 فندق</option>
+          <option value="other" id="opt-other">📍 أخرى</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-cancel" onclick="closeModal()" id="modal-cancel-text">إلغاء</button>
+      <button class="modal-save" onclick="saveBusiness()" id="modal-save-text">حفظ وبدء المراقبة</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="delete-modal">
+    <div class="delete-icon">🗑️</div>
+    <h3 id="del-title">حذف النشاط التجاري؟</h3>
+    <p id="del-desc">سيتم حذف جميع بيانات التقييمات المرتبطة بهذا النشاط. هذا الإجراء لا يمكن التراجع عنه.</p>
+    <div class="delete-actions">
+      <button class="del-cancel" onclick="closeDelete()" id="del-cancel-btn">إلغاء</button>
+      <button class="del-confirm" onclick="confirmDelete()" id="del-confirm-btn">نعم، احذف</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ <span id="toast-msg">تم الحفظ بنجاح</span></div>
+
+<!-- ════════ SIDEBAR ════════ -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🛡️</div>
+    <span class="logo-text" id="logo-name">ريفيوغارد</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label" id="nav-main-label">الرئيسية</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'">
+      <span class="nav-icon">🏠</span><span id="nav-dashboard">لوحة التحكم</span>
+    </div>
+    <div class="nav-item active">
+      <span class="nav-icon">🏢</span><span id="nav-businesses">الأعمال التجارية</span>
+    </div>
+    <div class="nav-section-label" id="nav-monitor-label">المراقبة</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'">
+      <span class="nav-icon">⭐</span><span id="nav-reviews">التقييمات</span>
+      <span class="nav-badge">14</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='alerts.html'">
+      <span class="nav-icon">🔔</span><span id="nav-alerts">التنبيهات</span>
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">📊</span><span id="nav-categories">تصنيف الشكاوى</span>
+    </div>
+    <div class="nav-section-label" id="nav-account-label">الحساب</div>
+    <div class="nav-item" onclick="window.location.href='settings.html'">
+      <span class="nav-icon">⚙️</span><span id="nav-settings">الإعدادات</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='index.html'">
+      <span class="nav-icon">🚪</span><span id="nav-logout">تسجيل الخروج</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av" id="user-av">مح</div>
+      <div class="user-info">
+        <div class="user-name" id="user-name">محمد الأحمد</div>
+        <div class="user-plan" id="user-plan">الخطة المجانية</div>
+      </div>
+      <span style="color:var(--muted);font-size:0.8rem;">⚙️</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ MAIN ════════ -->
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div>
+        <div class="page-title" id="page-title">الأعمال التجارية</div>
+        <div class="page-sub" id="page-sub">إدارة ومراقبة أعمالك</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="lang-btn" onclick="switchLang()" id="langBtn">EN</button>
+      <div class="icon-btn">🔔<div class="notif-dot"></div></div>
+      <button class="add-btn" onclick="openModal()">
+        <span>+</span><span id="add-btn-text">إضافة عمل</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- STATS ROW -->
+    <div class="stats-row">
+      <div class="stat-card red">
+        <div class="stat-icon si-red">🏢</div>
+        <div class="stat-info">
+          <div class="stat-val" id="s1v">2</div>
+          <div class="stat-lbl" id="s1l">نشاط تجاري مراقب</div>
+        </div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon si-purple">⭐</div>
+        <div class="stat-info">
+          <div class="stat-val" style="color:var(--red);" id="s2v">14</div>
+          <div class="stat-lbl" id="s2l">تقييم سلبي إجمالي</div>
+        </div>
+      </div>
+      <div class="stat-card cyan">
+        <div class="stat-icon si-cyan">🔄</div>
+        <div class="stat-info">
+          <div class="stat-val" style="color:var(--accent3);" id="s3v">كل 4 ساعات</div>
+          <div class="stat-lbl" id="s3l">معدل الفحص التلقائي</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUSINESSES GRID -->
+    <div class="section-header">
+      <div class="section-title">
+        <span>🏢</span>
+        <span id="sec-title">أعمالي التجارية</span>
+      </div>
+    </div>
+
+    <div class="biz-grid" id="bizGrid">
+
+      <!-- BUSINESS CARD 1 -->
+      <div class="biz-card" id="biz-card-1">
+        <div class="biz-card-header">
+          <div class="biz-avatar" style="background:rgba(200,75,138,0.1);border-color:rgba(200,75,138,0.2);">🍽️</div>
+          <div class="biz-header-info">
+            <div class="biz-card-name" id="bc1-name">مطعم الأصيل</div>
+            <div class="biz-card-url">🔗 <span>maps.google.com/place/al-aseel</span></div>
+          </div>
+          <div class="biz-status-pill bsp-warning">
+            <div class="bsp-dot"></div>
+            <span id="bc1-status">تحذير</span>
+          </div>
+        </div>
+        <div class="biz-card-body">
+          <div class="biz-mini-stats">
+            <div class="bms">
+              <div class="bms-val" style="color:var(--red);">9</div>
+              <div class="bms-lbl" id="bms1-1">تقييم سلبي</div>
+            </div>
+            <div class="bms">
+              <div class="bms-val" style="color:var(--yellow);">3.1</div>
+              <div class="bms-lbl" id="bms1-2">متوسط النجوم</div>
+            </div>
+            <div class="bms">
+              <div class="bms-val" style="color:var(--accent3);">4</div>
+              <div class="bms-lbl" id="bms1-3">هذا الأسبوع</div>
+            </div>
+          </div>
+          <div class="biz-last-scan">
+            <div class="scan-dot"></div>
+            <span id="bc1-scan">آخر فحص: منذ 12 دقيقة</span>
+          </div>
+          <div class="biz-latest">
+            <div class="bl-head">
+              <span class="bl-stars">★★☆☆☆</span>
+              <span class="bl-date" id="bc1-rev-date">منذ ساعتين</span>
+            </div>
+            <div class="bl-text" id="bc1-rev-text">"الموظفون كانوا وقحين جداً وانتظرنا 45 دقيقة."</div>
+          </div>
+          <div class="biz-card-actions">
+            <button class="bca primary" onclick="viewReviews(1)">
+              <span>⭐</span><span id="bc1-view">عرض التقييمات</span>
+            </button>
+            <button class="bca" onclick="editBiz(1)" title="تعديل">✏️</button>
+            <button class="bca" onclick="scanNow(1)" title="فحص الآن" id="scan-1">🔄</button>
+            <button class="bca" onclick="deleteBiz(1)" style="color:var(--red);border-color:rgba(244,63,94,0.2);" title="حذف">🗑️</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUSINESS CARD 2 -->
+      <div class="biz-card" id="biz-card-2">
+        <div class="biz-card-header">
+          <div class="biz-avatar" style="background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.2);">💇</div>
+          <div class="biz-header-info">
+            <div class="biz-card-name" id="bc2-name">صالون بيوتي كير</div>
+            <div class="biz-card-url">🔗 <span>maps.google.com/place/beautyCare</span></div>
+          </div>
+          <div class="biz-status-pill bsp-critical">
+            <div class="bsp-dot"></div>
+            <span id="bc2-status">حرج</span>
+          </div>
+        </div>
+        <div class="biz-card-body">
+          <div class="biz-mini-stats">
+            <div class="bms">
+              <div class="bms-val" style="color:var(--red);">5</div>
+              <div class="bms-lbl" id="bms2-1">تقييم سلبي</div>
+            </div>
+            <div class="bms">
+              <div class="bms-val" style="color:var(--red);">2.8</div>
+              <div class="bms-lbl" id="bms2-2">متوسط النجوم</div>
+            </div>
+            <div class="bms">
+              <div class="bms-val" style="color:var(--accent3);">3</div>
+              <div class="bms-lbl" id="bms2-3">هذا الأسبوع</div>
+            </div>
+          </div>
+          <div class="biz-last-scan">
+            <div class="scan-dot"></div>
+            <span id="bc2-scan">آخر فحص: منذ 45 دقيقة</span>
+          </div>
+          <div class="biz-latest">
+            <div class="bl-head">
+              <span class="bl-stars">★☆☆☆☆</span>
+              <span class="bl-date" id="bc2-rev-date">منذ يومين</span>
+            </div>
+            <div class="bl-text" id="bc2-rev-text">"الموظفة لم تستمع لطلباتي وكانت غير محترمة."</div>
+          </div>
+          <div class="biz-card-actions">
+            <button class="bca primary" onclick="viewReviews(2)">
+              <span>⭐</span><span id="bc2-view">عرض التقييمات</span>
+            </button>
+            <button class="bca" onclick="editBiz(2)" title="تعديل">✏️</button>
+            <button class="bca" onclick="scanNow(2)" title="فحص الآن" id="scan-2">🔄</button>
+            <button class="bca" onclick="deleteBiz(2)" style="color:var(--red);border-color:rgba(244,63,94,0.2);" title="حذف">🗑️</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADD CARD -->
+      <div class="add-biz-card" id="addCard" onclick="openModal()">
+        <div class="add-icon">➕</div>
+        <h3 id="add-card-title">أضف نشاطاً تجارياً جديداً</h3>
+        <p id="add-card-desc">الصق رابط خرائط جوجل وابدأ المراقبة فوراً</p>
+      </div>
+
+    </div>
+
+    <!-- UPGRADE BANNER -->
+    <div class="upgrade-banner">
+      <div class="ub-left">
+        <div class="ub-icon">⚡</div>
+        <div class="ub-text">
+          <h3 id="ub-title">أضف حتى 10 أعمال تجارية مع خطة Pro</h3>
+          <p id="ub-desc">أنت الآن على الخطة المجانية (عمل واحد). ترقَّ للحصول على مزيد من المراقبة والتنبيهات الفورية.</p>
+        </div>
+      </div>
+      <button class="upgrade-btn" id="upgrade-btn">ترقّ إلى Pro — $19/شهر</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var isAr = true;
+var pendingDeleteId = null;
+
+/* ── TRANSLATIONS ── */
+var T = {
+  'logo-name':        {ar:'ريفيوغارد',    en:'ReviewGuard'},
+  'nav-main-label':   {ar:'الرئيسية',     en:'Main'},
+  'nav-dashboard':    {ar:'لوحة التحكم', en:'Dashboard'},
+  'nav-businesses':   {ar:'الأعمال التجارية', en:'Businesses'},
+  'nav-monitor-label':{ar:'المراقبة',     en:'Monitoring'},
+  'nav-reviews':      {ar:'التقييمات',   en:'Reviews'},
+  'nav-alerts':       {ar:'التنبيهات',   en:'Alerts'},
+  'nav-categories':   {ar:'تصنيف الشكاوى', en:'Categories'},
+  'nav-account-label':{ar:'الحساب',      en:'Account'},
+  'nav-settings':     {ar:'الإعدادات',   en:'Settings'},
+  'nav-logout':       {ar:'تسجيل الخروج', en:'Logout'},
+  'user-av':          {ar:'مح',           en:'MA'},
+  'user-name':        {ar:'محمد الأحمد', en:'Mohammed Al-Ahmad'},
+  'user-plan':        {ar:'الخطة المجانية', en:'Free Plan'},
+  'page-title':       {ar:'الأعمال التجارية', en:'Businesses'},
+  'page-sub':         {ar:'إدارة ومراقبة أعمالك', en:'Manage and monitor your businesses'},
+  'add-btn-text':     {ar:'إضافة عمل',   en:'Add business'},
+  's1l':              {ar:'نشاط تجاري مراقب', en:'Monitored businesses'},
+  's2l':              {ar:'تقييم سلبي إجمالي', en:'Total negative reviews'},
+  's3v':              {ar:'كل 4 ساعات',  en:'Every 4 hours'},
+  's3l':              {ar:'معدل الفحص التلقائي', en:'Auto-scan frequency'},
+  'sec-title':        {ar:'أعمالي التجارية', en:'My Businesses'},
+  'bc1-name':         {ar:'مطعم الأصيل', en:'Al-Aseel Restaurant'},
+  'bc1-status':       {ar:'تحذير',       en:'Warning'},
+  'bms1-1':           {ar:'تقييم سلبي',  en:'Negative reviews'},
+  'bms1-2':           {ar:'متوسط النجوم', en:'Avg stars'},
+  'bms1-3':           {ar:'هذا الأسبوع', en:'This week'},
+  'bc1-scan':         {ar:'آخر فحص: منذ 12 دقيقة', en:'Last scan: 12 min ago'},
+  'bc1-rev-date':     {ar:'منذ ساعتين',  en:'2 hours ago'},
+  'bc1-rev-text':     {ar:'"الموظفون كانوا وقحين جداً وانتظرنا 45 دقيقة."', en:'"Staff were very rude and we waited 45 minutes."'},
+  'bc1-view':         {ar:'عرض التقييمات', en:'View reviews'},
+  'bc2-name':         {ar:'صالون بيوتي كير', en:'BeautyCare Salon'},
+  'bc2-status':       {ar:'حرج',         en:'Critical'},
+  'bms2-1':           {ar:'تقييم سلبي',  en:'Negative reviews'},
+  'bms2-2':           {ar:'متوسط النجوم', en:'Avg stars'},
+  'bms2-3':           {ar:'هذا الأسبوع', en:'This week'},
+  'bc2-scan':         {ar:'آخر فحص: منذ 45 دقيقة', en:'Last scan: 45 min ago'},
+  'bc2-rev-date':     {ar:'منذ يومين',   en:'2 days ago'},
+  'bc2-rev-text':     {ar:'"الموظفة لم تستمع لطلباتي وكانت غير محترمة."', en:'"The stylist did not listen and was disrespectful."'},
+  'bc2-view':         {ar:'عرض التقييمات', en:'View reviews'},
+  'add-card-title':   {ar:'أضف نشاطاً تجارياً جديداً', en:'Add a new business'},
+  'add-card-desc':    {ar:'الصق رابط خرائط جوجل وابدأ المراقبة فوراً', en:'Paste a Google Maps link and start monitoring instantly'},
+  'ub-title':         {ar:'أضف حتى 10 أعمال تجارية مع خطة Pro', en:'Add up to 10 businesses with the Pro plan'},
+  'ub-desc':          {ar:'أنت الآن على الخطة المجانية (عمل واحد). ترقَّ للحصول على مزيد من المراقبة والتنبيهات الفورية.', en:'You are on the Free plan (1 business). Upgrade for more monitoring and instant alerts.'},
+  'upgrade-btn':      {ar:'ترقّ إلى Pro — $19/شهر', en:'Upgrade to Pro — $19/mo'},
+  'modal-title-text': {ar:'إضافة نشاط تجاري جديد', en:'Add new business'},
+  'lbl-biz-name':     {ar:'اسم النشاط التجاري', en:'Business name'},
+  'lbl-biz-url':      {ar:'رابط خرائط جوجل', en:'Google Maps link'},
+  'url-hint':         {ar:'📍 افتح خرائط جوجل ← ابحث عن نشاطك ← انسخ الرابط من شريط العنوان', en:'📍 Open Google Maps → Search for your business → Copy the URL from the address bar'},
+  'lbl-biz-type':     {ar:'نوع النشاط', en:'Business type'},
+  'opt-select':       {ar:'اختر النوع...', en:'Select type...'},
+  'opt-restaurant':   {ar:'🍽️ مطعم / كافيه', en:'🍽️ Restaurant / Cafe'},
+  'opt-salon':        {ar:'💇 صالون تجميل', en:'💇 Beauty Salon'},
+  'opt-gym':          {ar:'🏋️ نادي رياضي', en:'🏋️ Gym'},
+  'opt-clinic':       {ar:'🏥 عيادة / مستوصف', en:'🏥 Clinic'},
+  'opt-store':        {ar:'🛍️ متجر', en:'🛍️ Store'},
+  'opt-hotel':        {ar:'🏨 فندق', en:'🏨 Hotel'},
+  'opt-other':        {ar:'📍 أخرى', en:'📍 Other'},
+  'modal-cancel-text':{ar:'إلغاء', en:'Cancel'},
+  'modal-save-text':  {ar:'حفظ وبدء المراقبة', en:'Save & start monitoring'},
+  'del-title':        {ar:'حذف النشاط التجاري؟', en:'Delete this business?'},
+  'del-desc':         {ar:'سيتم حذف جميع بيانات التقييمات المرتبطة بهذا النشاط. هذا الإجراء لا يمكن التراجع عنه.', en:'All review data for this business will be deleted. This action cannot be undone.'},
+  'del-cancel-btn':   {ar:'إلغاء', en:'Cancel'},
+  'del-confirm-btn':  {ar:'نعم، احذف', en:'Yes, delete'},
+  'toast-msg':        {ar:'تمت الإضافة بنجاح وبدأت المراقبة 🎉', en:'Business added and monitoring started 🎉'},
+};
+
+function switchLang() {
+  isAr = !isAr;
+  var l = isAr ? 'ar' : 'en';
+  document.documentElement.lang = l;
+  document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+  document.getElementById('langBtn').textContent = isAr ? 'EN' : 'عربي';
+  Object.keys(T).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && T[id] && T[id][l] !== undefined) {
+      if (el.tagName === 'INPUT') el.placeholder = T[id][l];
+      else el.innerHTML = T[id][l];
+    }
+  });
+}
+
+/* ── SIDEBAR ── */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+/* ── MODAL ── */
+function openModal() {
+  document.getElementById('bizName').value = '';
+  document.getElementById('bizUrl').value = '';
+  document.getElementById('bizType').value = '';
+  document.getElementById('addModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('addModal').classList.remove('open');
+}
+
+document.getElementById('addModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function saveBusiness() {
+  var name = document.getElementById('bizName').value.trim();
+  var url  = document.getElementById('bizUrl').value.trim();
+  if (!name || !url) {
+    document.getElementById('bizName').style.borderColor = !name ? 'rgba(244,63,94,0.5)' : '';
+    document.getElementById('bizUrl').style.borderColor  = !url  ? 'rgba(244,63,94,0.5)' : '';
+    return;
+  }
+  closeModal();
+  showToast(isAr ? 'تمت الإضافة بنجاح وبدأت المراقبة 🎉' : 'Business added and monitoring started 🎉');
+}
+
+/* ── DELETE ── */
+function deleteBiz(id) {
+  pendingDeleteId = id;
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+function closeDelete() {
+  document.getElementById('deleteModal').classList.remove('open');
+  pendingDeleteId = null;
+}
+
+function confirmDelete() {
+  if (pendingDeleteId) {
+    var card = document.getElementById('biz-card-' + pendingDeleteId);
+    if (card) { card.style.transition = 'all 0.3s'; card.style.opacity = '0'; card.style.transform = 'scale(0.95)'; setTimeout(function(){ card.remove(); }, 300); }
+  }
+  closeDelete();
+  showToast(isAr ? 'تم حذف النشاط التجاري' : 'Business deleted');
+}
+
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+  if (e.target === this) closeDelete();
+});
+
+/* ── SCAN ── */
+function scanNow(id) {
+  var btn = document.getElementById('scan-' + id);
+  btn.textContent = '⏳';
+  btn.style.pointerEvents = 'none';
+  setTimeout(function() {
+    btn.textContent = '✅';
+    setTimeout(function() { btn.textContent = '🔄'; btn.style.pointerEvents = ''; }, 1500);
+    showToast(isAr ? 'اكتمل الفحص — لا توجد تقييمات جديدة' : 'Scan complete — no new reviews');
+  }, 2500);
+}
+
+/* ── VIEW ── */
+function viewReviews(id) { window.location.href = 'dashboard.html'; }
+function editBiz(id)     { openModal(); }
+
+/* ── TOAST ── */
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 3500);
+}
+</script>
+</body>
+</html>

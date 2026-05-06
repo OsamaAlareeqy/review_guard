@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ريفيوغارد — مراقبة تقييمات جوجل السلبية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #07080f;
+      --bg2: #0d0e1a;
+      --bg3: #12131f;
+      --surface: #16172a;
+      --surface2: #1c1e32;
+      --border: rgba(255,255,255,0.06);
+      --border2: rgba(255,255,255,0.11);
+      --border3: rgba(255,255,255,0.18);
+      --text: #eeeef5;
+      --muted: #6b6d8a;
+      --muted2: #9496b8;
+      --accent: #c84b8a;
+      --accent2: #8b5cf6;
+      --accent3: #06b6d4;
+      --red: #f43f5e;
+      --yellow: #f59e0b;
+      --green: #10b981;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Tajawal', 'Cairo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, .logo-text, .plan-price, .stat-num {
+      font-family: 'Cairo', sans-serif;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .lang-btn {
+      position: fixed;
+      top: 1.1rem;
+      left: 1.5rem;
+      z-index: 200;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      color: var(--muted2);
+      padding: 0.35rem 0.9rem;
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-family: 'Cairo', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .lang-btn:hover { color: var(--text); border-color: var(--border3); }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2.5rem;
+      height: 64px;
+      background: rgba(7,8,15,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo { display: flex; align-items: center; gap: 0.6rem; }
+
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+
+    .logo-text { font-size: 1.15rem; font-weight: 700; }
+
+    .nav-links { display: flex; align-items: center; gap: 0.3rem; }
+
+    .nav-links a {
+      color: var(--muted2);
+      font-size: 0.88rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      transition: all 0.18s;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 500;
+    }
+    .nav-links a:hover { color: var(--text); background: var(--surface); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.55rem 1.3rem;
+      border-radius: 10px;
+      font-weight: 600; font-size: 0.88rem;
+      cursor: pointer; transition: all 0.2s;
+      border: none; font-family: 'Cairo', sans-serif;
+      white-space: nowrap;
+    }
+
+    .btn-outline {
+      background: transparent; color: var(--muted2);
+      border: 1px solid var(--border2);
+    }
+    .btn-outline:hover { color: var(--text); border-color: var(--border3); background: var(--surface); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      color: #fff;
+      box-shadow: 0 0 24px rgba(200,75,138,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 32px rgba(200,75,138,0.45); }
+
+    .btn-lg { padding: 0.85rem 2rem; font-size: 1rem; border-radius: 12px; }
+
+    .btn-ghost-lg {
+      background: var(--surface); border: 1px solid var(--border2);
+      color: var(--muted2); padding: 0.85rem 2rem;
+      font-size: 1rem; border-radius: 12px;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: 'Cairo', sans-serif; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-ghost-lg:hover { color: var(--text); border-color: var(--border3); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 9rem 2rem 5rem;
+      position: relative; overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute; top: 20%; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 500px;
+      background: radial-gradient(ellipse, rgba(200,75,138,0.08) 0%, rgba(139,92,246,0.06) 40%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: rgba(200,75,138,0.08);
+      border: 1px solid rgba(200,75,138,0.2);
+      border-radius: 100px;
+      padding: 0.4rem 1.2rem;
+      font-size: 0.82rem; color: #e879a8;
+      margin-bottom: 2.5rem;
+      font-family: 'Cairo', sans-serif; font-weight: 600;
+    }
+
+    .badge-dot {
+      width: 6px; height: 6px;
+      background: var(--red); border-radius: 50%;
+      animation: blink 1.5s ease-in-out infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .hero h1 {
+      font-size: clamp(2.6rem, 6.5vw, 5.2rem);
+      font-weight: 900; line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.75rem; max-width: 850px;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 60%, var(--accent3) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 1.12rem; color: var(--muted2);
+      max-width: 500px; margin: 0 auto 3rem;
+      font-weight: 400; line-height: 1.85;
+    }
+
+    .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 4rem; }
+
+    .trust-row { display: flex; align-items: center; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    .avatars { display: flex; }
+    .av {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 2px solid var(--bg);
+      margin-left: -9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; font-family: 'Cairo', sans-serif;
+    }
+    .av:first-child { margin-left: 0; }
+
+    .trust-text { font-size: 0.82rem; color: var(--muted); }
+    .trust-text strong { color: var(--muted2); font-weight: 600; }
+
+    /* STATS */
+    .stats-strip {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem 2rem;
+      display: flex; justify-content: center; gap: 0;
+    }
+
+    .stat-item { text-align: center; padding: 0 3.5rem; position: relative; }
+    .stat-item + .stat-item::before {
+      content: ''; position: absolute;
+      right: 0; top: 15%; bottom: 15%;
+      width: 1px; background: var(--border2);
+    }
+
+    .stat-num {
+      font-size: 2.4rem; font-weight: 900;
+      letter-spacing: -0.03em; line-height: 1; margin-bottom: 0.3rem;
+    }
+    .stat-label { font-size: 0.82rem; color: var(--muted); }
+
+    /* SECTION */
+    .section { padding: 7rem 2rem; max-width: 1160px; margin: 0 auto; }
+
+    .section-label {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1.25rem;
+      font-family: 'Cairo', sans-serif;
+    }
+    .section-label::before { content: ''; width: 20px; height: 2px; background: var(--accent); border-radius: 2px; }
+
+    .section-title {
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      font-weight: 900; letter-spacing: -0.025em;
+      line-height: 1.2; margin-bottom: 1rem;
+    }
+
+    .section-sub { color: var(--muted2); font-size: 1rem; max-width: 480px; line-height: 1.8; }
+
+    /* FEATURES BENTO */
+    .features-bento {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 4rem;
+    }
+
+    .f-card {
+      background: var(--bg2); padding: 2.25rem;
+      transition: background 0.25s; position: relative; overflow: hidden;
+    }
+    .f-card:hover { background: var(--bg3); }
+    .f-card.wide { grid-column: span 2; }
+
+    .f-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: var(--surface2); border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.35rem; margin-bottom: 1.5rem;
+    }
+
+    .f-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.6rem; }
+    .f-card p { color: var(--muted2); font-size: 0.88rem; line-height: 1.7; }
+
+    .f-tag {
+      display: inline-block; margin-top: 1rem;
+      padding: 0.2rem 0.65rem; border-radius: 6px;
+      font-size: 0.72rem; font-weight: 700;
+      font-family: 'Cairo', sans-serif;
+      background: rgba(200,75,138,0.1); color: #e879a8;
+      border: 1px solid rgba(200,75,138,0.15);
+    }
+
+    /* HOW */
+    .how-bg {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 1.5rem; margin-top: 4rem; position: relative;
+    }
+
+    .step-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; padding: 2rem 1.5rem;
+      text-align: center; transition: border-color 0.25s;
+    }
+    .step-card:hover { border-color: rgba(200,75,138,0.25); }
+
+    .step-circle {
+      width: 52px; height: 52px; border-radius: 50%;
+      border: 1px solid var(--border2); background: var(--bg2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cairo', sans-serif; font-weight: 900;
+      font-size: 1.15rem; color: var(--accent);
+      margin: 0 auto 1.5rem; position: relative; z-index: 1;
+    }
+
+    .step-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .step-card p { color: var(--muted2); font-size: 0.82rem; line-height: 1.65; }
+
+    /* PREVIEW */
+    .preview-wrapper {
+      margin-top: 4rem;
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 20px; overflow: hidden;
+    }
+
+    .preview-bar {
+      background: var(--bg3); padding: 1rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .bar-dots { display: flex; gap: 6px; }
+    .bar-dot { width: 11px; height: 11px; border-radius: 50%; }
+
+    .bar-url {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.3rem 1rem;
+      font-size: 0.75rem; color: var(--muted);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    .url-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+    .preview-body { display: grid; grid-template-columns: 220px 1fr; }
+
+    .preview-sidebar {
+      background: var(--bg3); border-left: 1px solid var(--border);
+      padding: 1.5rem 1.2rem;
+    }
+
+    .sidebar-item {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.65rem 0.85rem; border-radius: 10px;
+      font-size: 0.82rem; color: var(--muted2);
+      margin-bottom: 0.3rem; cursor: default; transition: all 0.15s;
+    }
+    .sidebar-item.active {
+      background: rgba(200,75,138,0.1); color: #e879a8;
+      border: 1px solid rgba(200,75,138,0.15);
+    }
+
+    .preview-main { padding: 1.5rem; }
+
+    .kpi-row {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 0.75rem; margin-bottom: 1.25rem;
+    }
+
+    .kpi {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem;
+    }
+    .kpi-label { font-size: 0.7rem; color: var(--muted); margin-bottom: 0.4rem; }
+    .kpi-val { font-family: 'Cairo', sans-serif; font-size: 1.5rem; font-weight: 900; line-height: 1; }
+    .kpi-sub { font-size: 0.68rem; color: var(--muted); margin-top: 0.25rem; }
+
+    .review-list { display: flex; flex-direction: column; gap: 0.65rem; }
+
+    .review-row {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 12px; padding: 0.9rem 1rem;
+      display: flex; align-items: flex-start; gap: 0.85rem;
+    }
+
+    .review-left { flex-shrink: 0; text-align: center; }
+    .stars { font-size: 0.75rem; letter-spacing: 1px; }
+
+    .urgency-badge {
+      display: inline-block; margin-top: 0.3rem;
+      padding: 0.15rem 0.5rem; border-radius: 5px;
+      font-size: 0.65rem; font-weight: 700;
+      font-family: 'Cairo', sans-serif;
+    }
+    .ub-red { background: rgba(244,63,94,0.15); color: #fb7185; border: 1px solid rgba(244,63,94,0.2); }
+    .ub-orange { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+
+    .review-text { font-size: 0.78rem; color: var(--muted2); line-height: 1.55; }
+    .review-meta { font-size: 0.7rem; color: var(--muted); margin-top: 0.3rem; }
+
+    /* CATEGORIES */
+    .cats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-top: 4rem; }
+
+    .cat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.5rem;
+      display: flex; align-items: center; gap: 1rem;
+      transition: border-color 0.2s;
+    }
+    .cat-card:hover { border-color: var(--border2); }
+    .cat-emoji { font-size: 1.5rem; }
+    .cat-name { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .cat-count { font-size: 0.72rem; color: var(--muted); }
+    .cat-bar-wrap { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-top: 0.4rem; }
+    .cat-bar { height: 100%; background: linear-gradient(to left, var(--accent2), var(--accent)); border-radius: 2px; }
+
+    /* PRICING */
+    .pricing-bg {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .plans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 4rem; }
+
+    .plan {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2.25rem; position: relative;
+    }
+    .plan.pro {
+      border-color: rgba(200,75,138,0.35);
+      background: linear-gradient(160deg, rgba(200,75,138,0.05) 0%, var(--surface) 50%);
+    }
+
+    .plan-ribbon {
+      position: absolute; top: -1px; right: 2rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; font-size: 0.7rem; font-weight: 700;
+      padding: 0.3rem 1rem; border-radius: 0 0 10px 10px;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .plan-tier { font-size: 0.78rem; color: var(--muted); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.75rem; font-family: 'Cairo', sans-serif; }
+    .plan-price { font-size: 3rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1; margin: 0.5rem 0 0.4rem; }
+    .plan-price sub { font-size: 1rem; font-weight: 400; color: var(--muted2); vertical-align: middle; }
+    .plan-desc { color: var(--muted2); font-size: 0.88rem; line-height: 1.65; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+    .plan-features li { display: flex; align-items: center; gap: 0.65rem; font-size: 0.88rem; color: var(--muted2); }
+    .li-check { color: var(--green); font-size: 1rem; flex-shrink: 0; }
+    .li-x { color: var(--muted); font-size: 1rem; flex-shrink: 0; }
+    .li-active { color: var(--text); }
+
+    /* CTA */
+    .cta-section { text-align: center; padding: 8rem 2rem; position: relative; overflow: hidden; }
+    .cta-glow {
+      position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse, rgba(139,92,246,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-section h2 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; letter-spacing: -0.025em; margin-bottom: 1rem; line-height: 1.2; }
+    .cta-section p { color: var(--muted2); margin-bottom: 2.5rem; font-size: 1.05rem; }
+    .cta-note { font-size: 0.8rem; color: var(--muted); margin-top: 1rem; }
+
+    /* FOOTER */
+    footer {
+      background: var(--bg2); border-top: 1px solid var(--border);
+      padding: 2.5rem; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+    footer p { color: var(--muted); font-size: 0.8rem; }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { color: var(--muted); font-size: 0.8rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--muted2); }
+
+    @media (max-width: 900px) {
+      .features-bento { grid-template-columns: 1fr; }
+      .f-card.wide { grid-column: span 1; }
+      .steps-grid { grid-template-columns: 1fr 1fr; }
+      .preview-sidebar { display: none; }
+      .preview-body { grid-template-columns: 1fr; }
+      .kpi-row { grid-template-columns: 1fr 1fr; }
+      .plans-grid { grid-template-columns: 1fr; }
+      .cats-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 0 1.25rem; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .cats-grid { grid-template-columns: 1fr; }
+      .stats-strip { flex-direction: column; align-items: center; gap: 2rem; }
+      .stat-item + .stat-item::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<button class="lang-btn" onclick="switchLang()" id="langBtn">EN</button>
+
+<nav>
+  <div class="logo">
+    <div class="logo-icon">🛡️</div>
+    <span class="logo-text" id="logo-name">ريفيوغارد</span>
+  </div>
+  <div class="nav-links">
+    <a href="#features" data-ar="المميزات" data-en="Features">المميزات</a>
+    <a href="#how" data-ar="كيف يعمل" data-en="How it works">كيف يعمل</a>
+    <a href="#pricing" data-ar="الأسعار" data-en="Pricing">الأسعار</a>
+    <a href="login.html" class="btn btn-outline" id="nav-login">تسجيل الدخول</a>
+    <a href="signup.html" class="btn btn-primary" id="nav-signup">ابدأ مجاناً</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge">
+    <div class="badge-dot"></div>
+    <span id="badge-text">مراقبة مباشرة على مدار الساعة</span>
+  </div>
+  <h1 id="hero-h1">لا تدع تقييماً سيئاً<br /><em>يدمر سمعة عملك</em></h1>
+  <p class="hero-sub" id="hero-sub">ريفيوغارد يراقب صفحتك على خرائط جوجل باستمرار، ويُنبّهك فور ظهور أي تقييم سلبي — قبل أن يؤثر على تقييمك العام.</p>
+  <div class="hero-cta">
+    <a href="signup.html" class="btn btn-primary btn-lg" id="hero-cta1">ابدأ المراقبة مجاناً ←</a>
+    <a href="#how" class="btn-ghost-lg" id="hero-cta2">اكتشف كيف يعمل</a>
+  </div>
+  <div class="trust-row">
+    <div class="avatars">
+      <div class="av" style="background:#1a1030;color:#c084fc;">أح</div>
+      <div class="av" style="background:#0f1f18;color:#6ee7b7;">سم</div>
+      <div class="av" style="background:#1f1020;color:#f9a8d4;">نو</div>
+      <div class="av" style="background:#101828;color:#93c5fd;">خا</div>
+      <div class="av" style="background:#1e1510;color:#fcd34d;">عب</div>
+    </div>
+    <span class="trust-text" id="trust-text">يثق بنا <strong>+500</strong> صاحب نشاط تجاري</span>
+  </div>
+</div>
+
+<div class="stats-strip">
+  <div class="stat-item">
+    <div class="stat-num" style="background:linear-gradient(135deg,#c84b8a,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">+12,400</div>
+    <div class="stat-label" id="stat1l">تقييم سلبي تم رصده</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" style="background:linear-gradient(135deg,#06b6d4,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">+500</div>
+    <div class="stat-label" id="stat2l">نشاط تجاري يُراقَب</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" style="background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">&lt;2h</div>
+    <div class="stat-label" id="stat3l">متوسط وقت الإشعار</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" style="background:linear-gradient(135deg,#f59e0b,#c84b8a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">98%</div>
+    <div class="stat-label" id="stat4l">دقة الكشف عن التقييمات</div>
+  </div>
+</div>
+
+<section class="section" id="features">
+  <div class="section-label" id="feat-label">المميزات</div>
+  <h2 class="section-title" id="feat-title">كل ما تحتاجه لحماية<br />سمعتك الرقمية</h2>
+  <p class="section-sub" id="feat-sub">أدوات مركّزة وفعّالة — بدون تعقيد، بدون ميزات زائدة.</p>
+  <div class="features-bento">
+    <div class="f-card wide">
+      <div class="f-icon">🔍</div>
+      <h3 id="f1t">مسح تلقائي للتقييمات</h3>
+      <p id="f1d">الصق رابط عملك من خرائط جوجل مرة واحدة — ريفيوغارد يفحص التقييمات الجديدة تلقائياً على مدار اليوم دون أي تدخل منك.</p>
+      <span class="f-tag" id="f1g">تشغيل تلقائي كامل</span>
+    </div>
+    <div class="f-card">
+      <div class="f-icon">⚡</div>
+      <h3 id="f2t">تنبيه فوري</h3>
+      <p id="f2d">اعلم بالتقييم السلبي قبل أن يقرأه أحد. المستخدمون المدفوعون يتلقون إشعاراً فورياً عبر البريد الإلكتروني.</p>
+    </div>
+    <div class="f-card">
+      <div class="f-icon">🧠</div>
+      <h3 id="f3t">تحليل بالذكاء الاصطناعي</h3>
+      <p id="f3d">الذكاء الاصطناعي يقرأ التقييم، يصنّف الشكوى، ويحدد مستوى الخطورة تلقائياً.</p>
+    </div>
+    <div class="f-card">
+      <div class="f-icon">📊</div>
+      <h3 id="f4t">تصنيف تلقائي</h3>
+      <p id="f4d">تُجمَّع الشكاوى في فئات: الموظفون، الخدمة، النظافة، الأسعار، وقت الانتظار، جودة المنتج.</p>
+    </div>
+    <div class="f-card">
+      <div class="f-icon">🚦</div>
+      <h3 id="f5t">حالة السمعة</h3>
+      <p id="f5d">مؤشر مباشر: مستقر، تحذير، أو حرج — بناءً على اتجاهات التقييمات الأخيرة.</p>
+    </div>
+    <div class="f-card">
+      <div class="f-icon">📋</div>
+      <h3 id="f6t">ملخص يومي</h3>
+      <p id="f6d">المستخدمون المجانيون يتلقون ملخصاً يومياً شاملاً بكل التقييمات السلبية الجديدة.</p>
+    </div>
+  </div>
+</section>
+
+<div class="how-bg" id="how">
+  <section class="section">
+    <div class="section-label" id="how-label">كيف يعمل</div>
+    <h2 class="section-title" id="how-title">جاهز في دقيقتين</h2>
+    <p class="section-sub" id="how-sub">لا كود، لا إعدادات معقدة. فقط الصق الرابط وستكون محمياً.</p>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-circle">١</div>
+        <h3 id="s1t">أنشئ حسابك</h3>
+        <p id="s1d">سجّل مجاناً في أقل من دقيقة. لا يلزم بطاقة ائتمانية.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-circle">٢</div>
+        <h3 id="s2t">الصق رابط خرائط جوجل</h3>
+        <p id="s2d">انسخ رابط نشاطك التجاري من خرائط جوجل والصقه في لوحة التحكم.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-circle">٣</div>
+        <h3 id="s3t">نبدأ المراقبة فوراً</h3>
+        <p id="s3d">ريفيوغارد يبدأ مسح تقييماتك في الحال ويستمر باستمرار.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-circle">٤</div>
+        <h3 id="s4t">استقبل التنبيهات</h3>
+        <p id="s4d">تلقّ بريداً إلكترونياً فور رصد تقييم سلبي مع كل التفاصيل.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="section">
+  <div class="section-label" id="prev-label">لوحة التحكم</div>
+  <h2 class="section-title" id="prev-title">مركز قيادة سمعتك</h2>
+  <p class="section-sub" id="prev-sub">كل التقييمات السلبية في مكان واحد، منظمة ومصنّفة.</p>
+  <div class="preview-wrapper">
+    <div class="preview-bar">
+      <div class="bar-dots">
+        <div class="bar-dot" style="background:#f43f5e;"></div>
+        <div class="bar-dot" style="background:#f59e0b;"></div>
+        <div class="bar-dot" style="background:#10b981;"></div>
+      </div>
+      <div class="bar-url">
+        <div class="url-dot"></div>
+        <span>app.reviewguard.co/dashboard</span>
+      </div>
+      <div style="width:60px;"></div>
+    </div>
+    <div class="preview-body">
+      <div class="preview-sidebar">
+        <div style="font-size:0.7rem;color:var(--muted);margin-bottom:1rem;font-weight:700;letter-spacing:0.08em;" id="si-head">القائمة</div>
+        <div class="sidebar-item active"><span>🏠</span> <span id="si1">لوحة التحكم</span></div>
+        <div class="sidebar-item"><span>🏢</span> <span id="si2">الأعمال</span></div>
+        <div class="sidebar-item"><span>🔔</span> <span id="si3">التنبيهات</span></div>
+        <div class="sidebar-item"><span>⚙️</span> <span id="si4">الإعدادات</span></div>
+      </div>
+      <div class="preview-main">
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="kpi-label" id="k1l">حالة السمعة</div>
+            <div class="kpi-val" style="color:#f59e0b;" id="k1v">تحذير</div>
+            <div class="kpi-sub" id="k1s">3 جديدة هذا الأسبوع</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label" id="k2l">تقييمات سلبية</div>
+            <div class="kpi-val" style="color:#f43f5e;">14</div>
+            <div class="kpi-sub" id="k2s">آخر 30 يوماً</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label" id="k3l">أكثر شكوى</div>
+            <div class="kpi-val" style="font-size:0.95rem;color:var(--text);" id="k3v">بطء الخدمة</div>
+            <div class="kpi-sub" id="k3s">6 حالات</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label" id="k4l">متوسط التقييم</div>
+            <div class="kpi-val">3.2 ⭐</div>
+            <div class="kpi-sub" style="color:#f43f5e;" id="k4s">↓ 0.3 هذا الشهر</div>
+          </div>
+        </div>
+        <div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.65rem;font-weight:600;" id="rv-head">أحدث التقييمات السلبية</div>
+        <div class="review-list">
+          <div class="review-row">
+            <div class="review-left">
+              <div class="stars" style="color:#f43f5e;">★★☆☆☆</div>
+              <span class="urgency-badge ub-red" id="u1">عاجل</span>
+            </div>
+            <div>
+              <div class="review-text" id="r1t">"الموظفون كانوا وقحين جداً وانتظرنا 45 دقيقة. لن أعود أبداً."</div>
+              <div class="review-meta" id="r1m">سارة م. · منذ ساعتين · موظفون، بطء الخدمة</div>
+            </div>
+          </div>
+          <div class="review-row">
+            <div class="review-left">
+              <div class="stars" style="color:#f43f5e;">★☆☆☆☆</div>
+              <span class="urgency-badge ub-red" id="u2">حرج</span>
+            </div>
+            <div>
+              <div class="review-text" id="r2t">"تجربة سيئة جداً. الطعام بارد والمكان غير نظيف والأسعار مبالغ فيها."</div>
+              <div class="review-meta" id="r2m">أحمد خ. · منذ 5 ساعات · نظافة، أسعار، جودة</div>
+            </div>
+          </div>
+          <div class="review-row">
+            <div class="review-left">
+              <div class="stars" style="color:#f59e0b;">★★☆☆☆</div>
+              <span class="urgency-badge ub-orange" id="u3">متوسط</span>
+            </div>
+            <div>
+              <div class="review-text" id="r3t">"وقت انتظار طويل جداً. الخدمة بطيئة مقارنة بالأماكن المجاورة."</div>
+              <div class="review-meta" id="r3m">نورة ع. · بالأمس · وقت الانتظار</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;" id="cats">
+  <div class="section-label" id="cats-label">التصنيفات</div>
+  <h2 class="section-title" id="cats-title">فهم أسباب الشكاوى</h2>
+  <p class="section-sub" id="cats-sub">يصنّف النظام كل شكوى تلقائياً حتى ترى الأنماط المتكررة.</p>
+  <div class="cats-grid">
+    <div class="cat-card">
+      <div class="cat-emoji">😠</div>
+      <div style="flex:1;">
+        <div class="cat-name" id="c1n">سلوك الموظفين</div>
+        <div class="cat-count" id="c1c">38 شكوى</div>
+        <div class="cat-bar-wrap"><div class="cat-bar" style="width:78%;"></div></div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-emoji">⏱️</div>
+      <div style="flex:1;">
+        <div class="cat-name" id="c2n">بطء الخدمة</div>
+        <div class="cat-count" id="c2c">31 شكوى</div>
+        <div class="cat-bar-wrap"><div class="cat-bar" style="width:63%;"></div></div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-emoji">🧹</div>
+      <div style="flex:1;">
+        <div class="cat-name" id="c3n">النظافة</div>
+        <div class="cat-count" id="c3c">22 شكوى</div>
+        <div class="cat-bar-wrap"><div class="cat-bar" style="width:45%;"></div></div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-emoji">💰</div>
+      <div style="flex:1;">
+        <div class="cat-name" id="c4n">الأسعار</div>
+        <div class="cat-count" id="c4c">18 شكوى</div>
+        <div class="cat-bar-wrap"><div class="cat-bar" style="width:37%;"></div></div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-emoji">🍽️</div>
+      <div style="flex:1;">
+        <div class="cat-name" id="c5n">جودة المنتج</div>
+        <div class="cat-count" id="c5c">14 شكوى</div>
+        <div class="cat-bar-wrap"><div class="cat-bar" style="width:28%;"></div></div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-emoji">🕐</div>
+      <div style="flex:1;">
+        <div class="cat-name" id="c6n">وقت الانتظار</div>
+        <div class="cat-count" id="c6c">11 شكوى</div>
+        <div class="cat-bar-wrap"><div class="cat-bar" style="width:22%;"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="pricing-bg" id="pricing">
+  <section class="section">
+    <div class="section-label" style="justify-content:center;" id="price-label">الأسعار</div>
+    <h2 class="section-title" style="text-align:center;" id="price-title">سعر واضح وبسيط</h2>
+    <p class="section-sub" style="margin:0 auto;text-align:center;" id="price-sub">ابدأ مجاناً، وترقَّ عندما تحتاج مزيداً.</p>
+    <div class="plans-grid">
+      <div class="plan">
+        <div class="plan-tier" id="p1tier">المجاني</div>
+        <div class="plan-price">$0 <sub id="p1per">/ شهر</sub></div>
+        <div class="plan-desc" id="p1desc">مثالي للبداية ومراقبة نشاط تجاري واحد.</div>
+        <ul class="plan-features">
+          <li><span class="li-check">✓</span><span class="li-active" id="p1f1">نشاط تجاري واحد</span></li>
+          <li><span class="li-check">✓</span><span class="li-active" id="p1f2">ملخص يومي عبر البريد</span></li>
+          <li><span class="li-check">✓</span><span class="li-active" id="p1f3">تصنيف الشكاوى</span></li>
+          <li><span class="li-check">✓</span><span class="li-active" id="p1f4">حالة السمعة</span></li>
+          <li><span class="li-x">–</span><span id="p1f5">تنبيهات فورية</span></li>
+          <li><span class="li-x">–</span><span id="p1f6">أعمال متعددة</span></li>
+        </ul>
+        <a href="signup.html" class="btn btn-outline" style="width:100%;justify-content:center;padding:0.85rem;" id="p1cta">ابدأ مجاناً</a>
+      </div>
+      <div class="plan pro">
+        <div class="plan-ribbon" id="p2ribbon">الأكثر شيوعاً</div>
+        <div class="plan-tier" id="p2tier">برو</div>
+        <div class="plan-price">$19 <sub id="p2per">/ شهر</sub></div>
+        <div class="plan-desc" id="p2desc">للأعمال الجادة التي لا تتحمل تفويت أي شكوى.</div>
+        <ul class="plan-features">
+          <li><span class="li-check">✓</span><span class="li-active" id="p2f1">حتى 10 أعمال تجارية</span></li>
+          <li><span class="li-check">✓</span><span class="li-active" id="p2f2">تنبيهات فورية</span></li>
+          <li><span class="li-check">✓</span><span class="li-active" id="p2f3">تحليل الشكاوى بالذكاء الاصطناعي</span></li>
+          <li><span class="li-check">✓</span><span class="li-active" id="p2f4">كشف مستوى الخطورة</span></li>
+          <li><span class="li-check">✓</span><span class="li-active" id="p2f5">تصنيف الشكاوى</span></li>
+          <li><span class="li-check">✓</span><span class="li-active" id="p2f6">دعم أولوية</span></li>
+        </ul>
+        <a href="signup.html" class="btn btn-primary" style="width:100%;justify-content:center;padding:0.85rem;" id="p2cta">ابدأ تجربة 7 أيام مجاناً</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="cta-section">
+  <div class="cta-glow"></div>
+  <h2 id="cta-h2">سمعتك لا تنتظر.<br />ابدأ المراقبة اليوم.</h2>
+  <p id="cta-sub">مجاني للأبد على نشاط تجاري واحد. لا بطاقة ائتمانية.</p>
+  <a href="signup.html" class="btn btn-primary btn-lg" id="cta-btn">أنشئ حساباً مجانياً ←</a>
+  <p class="cta-note" id="cta-note">لا يلزم بطاقة ائتمانية · إلغاء في أي وقت</p>
+</div>
+
+<footer>
+  <div class="logo">
+    <div class="logo-icon">🛡️</div>
+    <span class="logo-text" id="ft-logo">ريفيوغارد</span>
+  </div>
+  <p id="ft-copy">© 2025 ريفيوغارد. جميع الحقوق محفوظة.</p>
+  <div class="footer-links">
+    <a href="#" id="fl1">الخصوصية</a>
+    <a href="#" id="fl2">الشروط</a>
+    <a href="#" id="fl3">تواصل معنا</a>
+  </div>
+</footer>
+
+<script>
+var isAr = true;
+var T = {
+  'logo-name':  {ar:'ريفيوغارد', en:'ReviewGuard'},
+  'badge-text': {ar:'مراقبة مباشرة على مدار الساعة', en:'Live monitoring 24/7'},
+  'hero-h1':    {ar:'لا تدع تقييماً سيئاً<br/><em>يدمر سمعة عملك</em>', en:'Stop letting bad reviews<br/><em>hurt your business</em>'},
+  'hero-sub':   {ar:'ريفيوغارد يراقب صفحتك على خرائط جوجل باستمرار، ويُنبّهك فور ظهور أي تقييم سلبي — قبل أن يؤثر على تقييمك العام.', en:'ReviewGuard watches your Google Maps page 24/7 and alerts you the moment a negative review appears — before it damages your rating.'},
+  'hero-cta1':  {ar:'ابدأ المراقبة مجاناً ←', en:'Start monitoring free →'},
+  'hero-cta2':  {ar:'اكتشف كيف يعمل', en:'See how it works'},
+  'trust-text': {ar:'يثق بنا <strong>+500</strong> صاحب نشاط تجاري', en:'Trusted by <strong>500+</strong> business owners'},
+  'stat1l':     {ar:'تقييم سلبي تم رصده', en:'Negative reviews detected'},
+  'stat2l':     {ar:'نشاط تجاري يُراقَب', en:'Businesses monitored'},
+  'stat3l':     {ar:'متوسط وقت الإشعار', en:'Average alert time'},
+  'stat4l':     {ar:'دقة الكشف عن التقييمات', en:'Detection accuracy'},
+  'feat-label': {ar:'المميزات', en:'Features'},
+  'feat-title': {ar:'كل ما تحتاجه لحماية<br/>سمعتك الرقمية', en:'Everything you need to<br/>protect your reputation'},
+  'feat-sub':   {ar:'أدوات مركّزة وفعّالة — بدون تعقيد، بدون ميزات زائدة.', en:'Focused, effective tools — no bloat, no complexity.'},
+  'f1t': {ar:'مسح تلقائي للتقييمات', en:'Automatic review scanning'},
+  'f1d': {ar:'الصق رابط عملك من خرائط جوجل مرة واحدة — ريفيوغارد يفحص التقييمات الجديدة تلقائياً على مدار اليوم.', en:'Paste your Google Maps link once — ReviewGuard automatically checks for new reviews throughout the day.'},
+  'f1g': {ar:'تشغيل تلقائي كامل', en:'Fully automated'},
+  'f2t': {ar:'تنبيه فوري', en:'Instant alert'},
+  'f2d': {ar:'اعلم بالتقييم السلبي قبل أن يقرأه أحد. المستخدمون المدفوعون يتلقون إشعاراً فورياً عبر البريد الإلكتروني.', en:'Know about a negative review before anyone reads it. Paid users get instant email notifications.'},
+  'f3t': {ar:'تحليل بالذكاء الاصطناعي', en:'AI complaint analysis'},
+  'f3d': {ar:'الذكاء الاصطناعي يقرأ التقييم، يصنّف الشكوى، ويحدد مستوى الخطورة تلقائياً.', en:'AI reads the review, categorizes the complaint, and determines urgency level automatically.'},
+  'f4t': {ar:'تصنيف تلقائي', en:'Automatic categorization'},
+  'f4d': {ar:'تُجمَّع الشكاوى في فئات: الموظفون، الخدمة، النظافة، الأسعار، وقت الانتظار، جودة المنتج.', en:'Complaints grouped into: staff, service, cleanliness, pricing, wait time, product quality.'},
+  'f5t': {ar:'حالة السمعة', en:'Reputation status'},
+  'f5d': {ar:'مؤشر مباشر: مستقر، تحذير، أو حرج — بناءً على اتجاهات التقييمات الأخيرة.', en:'A live indicator: Stable, Warning, or Critical — based on recent review trends.'},
+  'f6t': {ar:'ملخص يومي', en:'Daily digest'},
+  'f6d': {ar:'المستخدمون المجانيون يتلقون ملخصاً يومياً شاملاً بكل التقييمات السلبية الجديدة.', en:'Free users receive a comprehensive daily summary of all new negative reviews.'},
+  'how-label':  {ar:'كيف يعمل', en:'How it works'},
+  'how-title':  {ar:'جاهز في دقيقتين', en:'Ready in 2 minutes'},
+  'how-sub':    {ar:'لا كود، لا إعدادات معقدة. فقط الصق الرابط وستكون محمياً.', en:'No code, no complex setup. Just paste the link and you\'re protected.'},
+  's1t': {ar:'أنشئ حسابك', en:'Create your account'},
+  's1d': {ar:'سجّل مجاناً في أقل من دقيقة. لا يلزم بطاقة ائتمانية.', en:'Sign up free in under a minute. No credit card required.'},
+  's2t': {ar:'الصق رابط خرائط جوجل', en:'Paste your Google Maps link'},
+  's2d': {ar:'انسخ رابط نشاطك التجاري من خرائط جوجل والصقه في لوحة التحكم.', en:'Copy your business link from Google Maps and paste it into the dashboard.'},
+  's3t': {ar:'نبدأ المراقبة فوراً', en:'We start monitoring'},
+  's3d': {ar:'ريفيوغارد يبدأ مسح تقييماتك في الحال ويستمر باستمرار.', en:'ReviewGuard begins scanning your reviews immediately and continuously.'},
+  's4t': {ar:'استقبل التنبيهات', en:'Get alerted'},
+  's4d': {ar:'تلقّ بريداً إلكترونياً فور رصد تقييم سلبي مع كل التفاصيل.', en:'Receive an email the moment a negative review is detected with full details.'},
+  'prev-label': {ar:'لوحة التحكم', en:'Dashboard'},
+  'prev-title': {ar:'مركز قيادة سمعتك', en:'Your reputation command center'},
+  'prev-sub':   {ar:'كل التقييمات السلبية في مكان واحد، منظمة ومصنّفة.', en:'All negative reviews in one place, organized and categorized.'},
+  'si-head': {ar:'القائمة', en:'Menu'},
+  'si1': {ar:'لوحة التحكم', en:'Dashboard'},
+  'si2': {ar:'الأعمال', en:'Businesses'},
+  'si3': {ar:'التنبيهات', en:'Alerts'},
+  'si4': {ar:'الإعدادات', en:'Settings'},
+  'k1l': {ar:'حالة السمعة', en:'Reputation Status'},
+  'k1v': {ar:'تحذير', en:'Warning'},
+  'k1s': {ar:'3 جديدة هذا الأسبوع', en:'3 new this week'},
+  'k2l': {ar:'تقييمات سلبية', en:'Negative Reviews'},
+  'k2s': {ar:'آخر 30 يوماً', en:'Last 30 days'},
+  'k3l': {ar:'أكثر شكوى', en:'Top complaint'},
+  'k3v': {ar:'بطء الخدمة', en:'Slow service'},
+  'k3s': {ar:'6 حالات', en:'6 mentions'},
+  'k4l': {ar:'متوسط التقييم', en:'Avg Rating'},
+  'k4s': {ar:'↓ 0.3 هذا الشهر', en:'↓ 0.3 this month'},
+  'rv-head': {ar:'أحدث التقييمات السلبية', en:'Latest negative reviews'},
+  'u1': {ar:'عاجل', en:'Urgent'},
+  'r1t': {ar:'"الموظفون كانوا وقحين جداً وانتظرنا 45 دقيقة. لن أعود أبداً."', en:'"Staff were very rude and we waited 45 minutes. Never coming back."'},
+  'r1m': {ar:'سارة م. · منذ ساعتين · موظفون، بطء الخدمة', en:'Sarah M. · 2 hours ago · Staff, Slow service'},
+  'u2': {ar:'حرج', en:'Critical'},
+  'r2t': {ar:'"تجربة سيئة جداً. الطعام بارد والمكان غير نظيف والأسعار مبالغ فيها."', en:'"Terrible experience. Food was cold, place dirty, overpriced."'},
+  'r2m': {ar:'أحمد خ. · منذ 5 ساعات · نظافة، أسعار، جودة', en:'Ahmed K. · 5 hours ago · Cleanliness, Pricing, Quality'},
+  'u3': {ar:'متوسط', en:'Moderate'},
+  'r3t': {ar:'"وقت انتظار طويل جداً. الخدمة بطيئة مقارنة بالأماكن المجاورة."', en:'"Very long wait. Service slow compared to nearby places."'},
+  'r3m': {ar:'نورة ع. · بالأمس · وقت الانتظار', en:'Nora A. · Yesterday · Waiting time'},
+  'cats-label': {ar:'التصنيفات', en:'Categories'},
+  'cats-title': {ar:'فهم أسباب الشكاوى', en:'Understand complaint patterns'},
+  'cats-sub':   {ar:'يصنّف النظام كل شكوى تلقائياً حتى ترى الأنماط المتكررة.', en:'The system automatically categorizes every complaint so you can spot recurring patterns.'},
+  'c1n': {ar:'سلوك الموظفين', en:'Staff behavior'}, 'c1c': {ar:'38 شكوى', en:'38 complaints'},
+  'c2n': {ar:'بطء الخدمة', en:'Slow service'},     'c2c': {ar:'31 شكوى', en:'31 complaints'},
+  'c3n': {ar:'النظافة', en:'Cleanliness'},          'c3c': {ar:'22 شكوى', en:'22 complaints'},
+  'c4n': {ar:'الأسعار', en:'Pricing'},              'c4c': {ar:'18 شكوى', en:'18 complaints'},
+  'c5n': {ar:'جودة المنتج', en:'Product quality'},  'c5c': {ar:'14 شكوى', en:'14 complaints'},
+  'c6n': {ar:'وقت الانتظار', en:'Waiting time'},    'c6c': {ar:'11 شكوى', en:'11 complaints'},
+  'price-label': {ar:'الأسعار', en:'Pricing'},
+  'price-title': {ar:'سعر واضح وبسيط', en:'Simple, honest pricing'},
+  'price-sub':   {ar:'ابدأ مجاناً، وترقَّ عندما تحتاج مزيداً.', en:'Start free, upgrade when you need more.'},
+  'p1tier': {ar:'المجاني', en:'Free'},
+  'p1per':  {ar:'/ شهر', en:'/ month'},
+  'p1desc': {ar:'مثالي للبداية ومراقبة نشاط تجاري واحد.', en:'Perfect for getting started and monitoring one location.'},
+  'p1f1': {ar:'نشاط تجاري واحد', en:'1 business'},
+  'p1f2': {ar:'ملخص يومي عبر البريد', en:'Daily email digest'},
+  'p1f3': {ar:'تصنيف الشكاوى', en:'Complaint categories'},
+  'p1f4': {ar:'حالة السمعة', en:'Reputation status'},
+  'p1f5': {ar:'تنبيهات فورية', en:'Instant alerts'},
+  'p1f6': {ar:'أعمال متعددة', en:'Multiple businesses'},
+  'p1cta': {ar:'ابدأ مجاناً', en:'Get started free'},
+  'p2ribbon': {ar:'الأكثر شيوعاً', en:'Most popular'},
+  'p2tier': {ar:'برو', en:'Pro'},
+  'p2per':  {ar:'/ شهر', en:'/ month'},
+  'p2desc': {ar:'للأعمال الجادة التي لا تتحمل تفويت أي شكوى.', en:'For serious businesses that can\'t afford to miss a single complaint.'},
+  'p2f1': {ar:'حتى 10 أعمال تجارية', en:'Up to 10 businesses'},
+  'p2f2': {ar:'تنبيهات فورية', en:'Instant alerts'},
+  'p2f3': {ar:'تحليل الشكاوى بالذكاء الاصطناعي', en:'AI complaint analysis'},
+  'p2f4': {ar:'كشف مستوى الخطورة', en:'Urgency detection'},
+  'p2f5': {ar:'تصنيف الشكاوى', en:'Complaint categories'},
+  'p2f6': {ar:'دعم أولوية', en:'Priority support'},
+  'p2cta': {ar:'ابدأ تجربة 7 أيام مجاناً', en:'Start 7-day free trial'},
+  'cta-h2':  {ar:'سمعتك لا تنتظر.<br/>ابدأ المراقبة اليوم.', en:'Your reputation can\'t wait.<br/>Start monitoring today.'},
+  'cta-sub': {ar:'مجاني للأبد على نشاط تجاري واحد. لا بطاقة ائتمانية.', en:'Free forever on 1 business. No credit card needed.'},
+  'cta-btn': {ar:'أنشئ حساباً مجانياً ←', en:'Create free account →'},
+  'cta-note':{ar:'لا يلزم بطاقة ائتمانية · إلغاء في أي وقت', en:'No credit card · Cancel anytime'},
+  'ft-logo': {ar:'ريفيوغارد', en:'ReviewGuard'},
+  'ft-copy': {ar:'© 2025 ريفيوغارد. جميع الحقوق محفوظة.', en:'© 2025 ReviewGuard. All rights reserved.'},
+  'fl1': {ar:'الخصوصية', en:'Privacy'},
+  'fl2': {ar:'الشروط', en:'Terms'},
+  'fl3': {ar:'تواصل معنا', en:'Contact'},
+  'nav-login':  {ar:'تسجيل الدخول', en:'Login'},
+  'nav-signup': {ar:'ابدأ مجاناً', en:'Start free'}
+};
+
+function switchLang() {
+  isAr = !isAr;
+  var l = isAr ? 'ar' : 'en';
+  document.documentElement.lang = l;
+  document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+  document.getElementById('langBtn').textContent = isAr ? 'EN' : 'عربي';
+  var btn = document.getElementById('langBtn');
+  btn.style.left = isAr ? '1.5rem' : 'auto';
+  btn.style.right = isAr ? 'auto' : '1.5rem';
+  Object.keys(T).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && T[id][l] !== undefined) el.innerHTML = T[id][l];
+  });
+  document.querySelectorAll('.nav-links a[data-ar]').forEach(function(el) {
+    el.textContent = isAr ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+  });
+}
+</script>
+</body>
+</html>
